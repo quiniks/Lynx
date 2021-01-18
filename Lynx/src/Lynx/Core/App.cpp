@@ -11,6 +11,7 @@ namespace Lynx {
 
 	void App::Run()
 	{
+		
 	}
 
 	void App::Close()

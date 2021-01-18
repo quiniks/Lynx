@@ -1,0 +1,13 @@
+# Binaries
+**/bin/
+build/obj/
+
+# Ursa files
+*.log
+
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user

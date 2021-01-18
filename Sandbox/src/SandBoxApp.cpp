@@ -1,10 +1,9 @@
-#include "Lynx/Core/App.h"
 #include "Lynx/Core/Entry.h"
 
 class SandBoxApp : public Lynx::App {
 public:
 	SandBoxApp() {
-
+		LX_INFO("Hello");
 	}
 
 	~SandBoxApp() {

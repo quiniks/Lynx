@@ -1,0 +1,3 @@
+[submodule "Lynx/vendor/spdlog"]
+	path = Lynx/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
