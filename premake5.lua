@@ -1,6 +1,7 @@
 outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 includeDir = {}
 includeDir["spdlog"] = "Lynx/vendor/spdlog/include"
+includeDir["glfw"] = "Lynx/vendor/GLFW/include"
 
 workspace "Lynx"
     architecture "x64"
@@ -9,39 +10,53 @@ workspace "Lynx"
     configurations {"Debug", "Release"}
     startproject "Sandbox"
 
-    filter "configurations:Debug"
-        defines "DEBUG"
-        runtime "Debug"
-        symbols "on"
-
-    filter "configurations:Release"
-        defines "RELEASE"
-        runtime "Release"
-        optimize "on"
-
-    filter {}
-
     targetdir ("build/bin/" .. outputDir .. "/%{prj.name}")
     objdir ("build/obj/" .. outputDir .. "/%{prj.name}")
+
+    group "Dependencies"
+	    include "Lynx/vendor/GLFW"
+    group ""
 
 project "Lynx"
     location "Lynx"
     kind "StaticLib"
     staticruntime "on"
 
+    pchheader "Lynxpch.h"
+    pchsource "Lynx/src/Lynxpch.cpp"
+    forceincludes  "Lynxpch.h"
+
     files "Lynx/src/**"
 
-    includes = {
+    includedirs {
         "Lynx/src",
-        "%{includeDir.spdlog}"
+        "%{includeDir.spdlog}",
+        "%{includeDir.glfw}"
     }
 
-    includedirs {includes}
+    links {
+        "GLFW",
+        "opengl32"
+    }
 
     function useLynx()
-        includedirs {includes}
+        includedirs {
+            "Lynx/src",
+            "%{includeDir.spdlog}"
+        }
         links "Lynx"
     end
+
+    filter "configurations:Debug"
+        defines "LX_DEBUG"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        defines "LX_RELEASE"
+        runtime "Release"
+        optimize "on"
+
 
 project "Sandbox"
     location "Sandbox"
@@ -55,5 +70,15 @@ project "Sandbox"
     filter "system:windows"
         systemversion "latest"
         defines {
-            "_CRT_SECURE_NO_WARNINGS",
+            "_CRT_SECURE_NO_WARNINGS"
         }
+    
+    filter "configurations:Debug"
+        defines "LX_DEBUG"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        defines "LX_RELEASE"
+        runtime "Release"
+        optimize "on"

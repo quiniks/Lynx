@@ -1,8 +1,8 @@
-#include "Lynx/Core/Entry.h"
+#include <Lynx.h>
 
 class SandBoxApp : public Lynx::App {
 public:
-	SandBoxApp() {
+	SandBoxApp() : Lynx::App() {
 		LX_INFO("Hello");
 	}
 

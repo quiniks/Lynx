@@ -1,6 +1,6 @@
 #pragma once
-#include "Lynx/Core/App.h"
-#include "Lynx/Core/Log.h"
+
+#ifdef LX_PLATFORM_WINDOWS
 
 extern Lynx::App* Lynx::Create();
 
@@ -10,3 +10,5 @@ int main(int argc, char** argv) {
 	app->Run();
 	delete app;
 }
+
+#endif

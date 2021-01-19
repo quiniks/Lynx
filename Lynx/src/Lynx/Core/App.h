@@ -1,13 +1,17 @@
 #pragma once
+#include "Lynx/Core/Window.h"
 
 namespace Lynx {
 	class App {
 	public:
-		App();
+		App(const std::string& name = "LYNX");
 		~App();
 
 		void Run();
 		void Close();
+	private:
+		std::unique_ptr<IWindow> m_Window;
 	};
+
 	App* Create();
 }
