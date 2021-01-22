@@ -104,7 +104,9 @@
     <ClInclude Include="src\Lynx\Core\Entry.h" />
     <ClInclude Include="src\Lynx\Core\Log.h" />
     <ClInclude Include="src\Lynx\Core\Window.h" />
+    <ClInclude Include="src\Lynx\Events\AppEvent.h" />
     <ClInclude Include="src\Lynx\Events\Event.h" />
+    <ClInclude Include="src\Lynx\Events\MouseEvent.h" />
     <ClInclude Include="src\Lynx\Utility\BitMask.h" />
     <ClInclude Include="src\Lynxpch.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />

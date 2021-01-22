@@ -18,7 +18,7 @@ namespace Lynx {
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		inline virtual void* GetNativeWindow() const { return m_Window; }
+		virtual void* GetNativeWindow() const { return m_Window; }
 
 		void SetIcon(const std::string& filePath) override;
 	private:

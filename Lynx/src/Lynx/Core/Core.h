@@ -15,7 +15,7 @@
 #endif
 
 #ifdef LX_DEBUG
-#define LX_ENABLE_ASSERTS
+	#define LX_ENABLE_ASSERTS
 #endif
 
 #ifdef LX_ENABLE_ASSERTS

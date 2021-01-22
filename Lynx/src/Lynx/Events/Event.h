@@ -1,7 +1,8 @@
 #pragma once
 #include <iostream>
+#include <string>
+#include <sstream>
 #include "Lynx/Utility/BitMask.h"
-
 
 namespace Lynx {
 	enum class EventType
@@ -24,25 +25,17 @@ namespace Lynx {
 	};
 	ENABLE_BITMASK_OPERATORS(EventCategory);
 
-	//Used instead of add these three functions each time for each event type
-	#define EVENT_CLASS_TYPE(type)	static EventType GetStaticType() { return EventType::type; }\
-									virtual EventType GetEventType() const override { return GetStaticType(); }\
-									virtual const char* GetName() const override { return #type; }
-
-	#define EVENT_CLASS_CATEGORY(category)	static EventCategory GetStaticCategoryFlags() { return category; }\
-											virtual EventCategory GetCategoryFlags() const override { return GetStaticCategoryFlags(); }
-
 	class Event
 	{
 	public:
+		Event() = default;
 		virtual ~Event() = default;
 
 		bool Handled = false;
 
 		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
 		virtual EventCategory GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		virtual std::string ToString() const { return std::to_string((char)GetEventType()); }
 
 		bool IsInCategory(EventCategory category)
 		{
@@ -68,7 +61,8 @@ namespace Lynx {
 	private:
 		Event& m_Event;
 	};
-
+	
+	
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
 		return os << e.ToString();

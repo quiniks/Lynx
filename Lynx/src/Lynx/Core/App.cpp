@@ -2,11 +2,12 @@
 #include "App.h"
 
 namespace Lynx {
-	#define BIND_EVENT_FN(x) = std::bind(&Application::x, this, std::placeholders::_1)
+	#define BIND_EVENT_FN(x) std::bind(&App::x, this, std::placeholders::_1)
 
 	App::App(const std::string& name)
 	{
 		m_Window = IWindow::Create(WindowProps(name));
+		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 	}
 
 	App::~App()
@@ -20,7 +21,8 @@ namespace Lynx {
 		}
 	}
 
-	void App::Close()
+	void App::OnEvent(Event& e)
 	{
+		LX_CORE_INFO(e);
 	}
 }

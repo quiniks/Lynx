@@ -1,10 +1,12 @@
 #include "Lynxpch.h"
 #include "Platform/Windows/WindowsWindow.h"
+#include "Lynx/Events/AppEvent.h"
+#include "Lynx/Events/MouseEvent.h"
 
 namespace Lynx {
-	static uint8_t s_GLFWWindowCount = 0;
+	static unsigned int s_GLFWWindowCount = 0;
 
-	static void GLFWErrorCallback(int error, const char* desc) {
+	void GLFWErrorCallback(int error, const char* desc) {
 		LX_CORE_ERROR("GLFW ERROR ({0}): {1}", error, desc);
 	}
 
@@ -32,7 +34,7 @@ namespace Lynx {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		//LX_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		LX_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (s_GLFWWindowCount == 0) {
 			//LX_PROFILE_SCOPE("glfwInit");
@@ -60,37 +62,37 @@ namespace Lynx {
 			data.Width = width;
 			data.Height = height;
 
-			//WindowResizeEvent event(width, height);
-			//data.EventCallback(event);
+			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
 		});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			//WindowCloseEvent event;
-			//data.EventCallback(event);
+			WindowCloseEvent event;
+			data.EventCallback(event);
 		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			switch (action) {
-			case GLFW_PRESS:
-			{
-				//KeyPressedEvent event(key, 0);
-				//data.EventCallback(event);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				//KeyReleasedEvent event(key);
-				//data.EventCallback(event);
-				break;
-			}
-			case GLFW_REPEAT:
-			{
-				//KeyPressedEvent event(key, 1);
-				//data.EventCallback(event);
-				break;
-			}
+				case GLFW_PRESS:
+				{
+					//KeyPressedEvent event(key, 0);
+					//data.EventCallback(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					//KeyReleasedEvent event(key);
+					//data.EventCallback(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					//KeyPressedEvent event(key, 1);
+					//data.EventCallback(event);
+					break;
+				}
 			}
 		});
 
@@ -105,14 +107,14 @@ namespace Lynx {
 
 			switch (action) {
 			case GLFW_PRESS: {
-				//MouseButtonPressedEvent event(button);
-				//data.EventCallback(event);
+				MouseButtonPressedEvent event(button);
+				data.EventCallback(event);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
-				//MouseButtonReleasedEvent event(button);
-				//data.EventCallback(event);
+				MouseButtonReleasedEvent event(button);
+				data.EventCallback(event);
 				break;
 			}
 			}
@@ -121,15 +123,15 @@ namespace Lynx {
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-			//MouseScrolledEvent event((float)xOffset, (float)yOffset);
-			//data.EventCallback(event);
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
 		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-			//MouseMovedEvent event((float)xPos, (float)yPos);
-			//data.EventCallback(event);
+			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
 		});
 	}
 
