@@ -1,35 +1,49 @@
 #pragma once
-#include <functional>
+
 #include "Lynx/Events/Event.h"
+#include <functional>
+
+struct GLFWwindow;
 
 namespace Lynx {
-	struct WindowProps {
-		std::string Title;
-		unsigned int Width;
-		unsigned int Height;
+	using EventCallbackFn = std::function<void(Event&)>;
 
-		WindowProps(
-			const std::string& title = "LYNX",
-			unsigned int width = 1280,
-			unsigned int height = 720
-			) : Title(title), Width(width), Height(height) {}
+	struct WindowProps {
+		std::string Title = "LYNX";
+		unsigned int Width = 1080;
+		unsigned int Height = 720;
 	};
 
-	class IWindow {
+	class Window {
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
+		static std::unique_ptr<Window> Create(const WindowProps& props = WindowProps());
 
-		virtual ~IWindow() = default;
-		virtual void OnUpdate() = 0;
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
-		virtual void SetVSync(bool enabled) = 0;
-		virtual bool IsVSync() const = 0;
+		Window(const WindowProps& props);
+		virtual ~Window();
 
-		virtual void* GetNativeWindow() const = 0;
-		virtual void SetIcon(const std::string& filePath) = 0;
+		void OnUpdate();
 
-		static std::unique_ptr<IWindow> Create(const WindowProps& props = WindowProps());
+		unsigned int GetWidth() const { return m_Data.Width; }
+		unsigned int GetHeight() const { return m_Data.Height; }
+
+		void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
+		void SetVSync(bool enabled);
+		bool IsVSync() const;
+
+		virtual void* GetNativeWindow() const { return m_Window; }
+
+		void SetIcon(const std::string& filePath);
+	private:
+		virtual void Init(const WindowProps& props);
+		virtual void Shutdown();
+	private:
+		GLFWwindow* m_Window;
+		struct WindowData {
+			std::string Title = "LYNX";
+			unsigned int Width = 1080;
+			unsigned int Height = 720;
+			bool VSync = true;
+			EventCallbackFn EventCallback = nullptr;
+		} m_Data;
 	};
 }

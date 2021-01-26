@@ -1,6 +1,8 @@
 #pragma once
-#include "Lynx/Core/Window.h"
 #include "Lynx/Events/Event.h"
+#include "Lynx/Core/Window.h"
+#include "Lynx/Core/LayerStack.h"
+#include <functional>
 
 namespace Lynx {
 	class App {
@@ -10,7 +12,8 @@ namespace Lynx {
 		void Run();
 		void OnEvent(Event& e);
 	private:
-		std::unique_ptr<IWindow> m_Window;
+		std::unique_ptr<Window> m_Window;
+		LayerStack m_LayerStack;
 	};
 
 	App* Create();

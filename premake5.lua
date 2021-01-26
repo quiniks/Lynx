@@ -2,6 +2,8 @@ outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 includeDir = {}
 includeDir["spdlog"] = "Lynx/vendor/spdlog/include"
 includeDir["glfw"] = "Lynx/vendor/GLFW/include"
+includeDir["glad"] = "Lynx/vendor/GLAD/include"
+includeDir["glm"] = "Lynx/vendor/glm"
 
 workspace "Lynx"
     architecture "x64"
@@ -14,7 +16,8 @@ workspace "Lynx"
     objdir ("build/obj/" .. outputDir .. "/%{prj.name}")
 
     group "Dependencies"
-	    include "Lynx/vendor/GLFW"
+        include "Lynx/vendor/GLFW"
+        include "Lynx/vendor/GLAD"
     group ""
 
 project "Lynx"
@@ -24,28 +27,42 @@ project "Lynx"
 
     pchheader "Lynxpch.h"
     pchsource "Lynx/src/Lynxpch.cpp"
-    forceincludes  "Lynxpch.h"
+    --forceincludes  "Lynxpch.h"
 
-    files "Lynx/src/**"
+    files {
+        "Lynx/src/**",
+        "%{prj.name}/vendor/glm//**.hpp",
+		"%{prj.name}/vendor/glm//**.inl"
+    }
 
     includedirs {
         "Lynx/src",
         "%{includeDir.spdlog}",
-        "%{includeDir.glfw}"
+        "%{includeDir.glfw}",
+        "%{includeDir.glad}",
+        "%{includeDir.glm}"
     }
 
     links {
         "GLFW",
+        "GLAD",
         "opengl32"
     }
 
     function useLynx()
         includedirs {
             "Lynx/src",
-            "%{includeDir.spdlog}"
+            "%{includeDir.spdlog}",
+            "%{includeDir.glm}",
         }
         links "Lynx"
     end
+
+    filter "system:windows"
+    systemversion "latest"
+    defines {
+        "_CRT_SECURE_NO_WARNINGS"
+    }
 
     filter "configurations:Debug"
         defines "LX_DEBUG"
@@ -66,12 +83,6 @@ project "Sandbox"
     files "Sandbox/src/**"
  
     useLynx()
-
-    filter "system:windows"
-        systemversion "latest"
-        defines {
-            "_CRT_SECURE_NO_WARNINGS"
-        }
     
     filter "configurations:Debug"
         defines "LX_DEBUG"

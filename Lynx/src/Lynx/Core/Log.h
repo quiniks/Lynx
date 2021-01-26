@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include <codeanalysis\warnings.h>
 #pragma warning( push )
