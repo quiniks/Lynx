@@ -17,8 +17,8 @@ namespace Lynx {
 
 	void App::Run()
 	{
-		while (true) {
-			for(Layer* layer : m_LayerStack)
+		while (m_Running) {
+			for(auto& layer : m_LayerStack)
 				layer->OnUpdate();
 			m_Window->OnUpdate();
 		}
@@ -26,10 +26,18 @@ namespace Lynx {
 
 	void App::OnEvent(Event& e)
 	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClosed));
+
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it) {
 			if (e.Handled)
 				break;
 			(*it)->OnEvent(e);
 		}
+	}
+	bool App::OnWindowClosed(WindowCloseEvent& e)
+	{
+		m_Running = false;
+		return true;
 	}
 }

@@ -10,9 +10,9 @@ namespace Lynx {
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 
 		s_CoreLogger = spdlog::stdout_color_mt("Lynx");
-		s_CoreLogger->set_level(spdlog::level::info);
+		s_CoreLogger->set_level(spdlog::level::trace);
 
 		s_AppLogger = spdlog::stdout_color_mt("App");
-		s_AppLogger->set_level(spdlog::level::info);
+		s_AppLogger->set_level(spdlog::level::trace);
 	}
 }

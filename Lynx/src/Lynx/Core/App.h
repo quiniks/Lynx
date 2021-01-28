@@ -1,5 +1,6 @@
 #pragma once
 #include "Lynx/Events/Event.h"
+#include "Lynx/Events/AppEvent.h"
 #include "Lynx/Core/Window.h"
 #include "Lynx/Core/LayerStack.h"
 #include <functional>
@@ -12,7 +13,11 @@ namespace Lynx {
 		void Run();
 		void OnEvent(Event& e);
 	private:
+		bool OnWindowClosed(WindowCloseEvent& e);
+	private:
 		std::unique_ptr<Window> m_Window;
+		bool m_Running = true;
+	protected:
 		LayerStack m_LayerStack;
 	};
 

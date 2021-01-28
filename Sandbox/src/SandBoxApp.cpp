@@ -1,9 +1,10 @@
+#include "SandBoxLayer.h"
 #include <Lynx.h>
 
 class SandBoxApp : public Lynx::App {
 public:
 	SandBoxApp() : Lynx::App() {
-		LX_INFO("Hello");
+		m_LayerStack.PushLayer(std::make_shared<SandBoxLayer>());
 	}
 
 	~SandBoxApp() {

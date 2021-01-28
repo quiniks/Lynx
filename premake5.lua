@@ -54,6 +54,7 @@ project "Lynx"
             "Lynx/src",
             "%{includeDir.spdlog}",
             "%{includeDir.glm}",
+            "%{includeDir.glad}",
         }
         links "Lynx"
     end
