@@ -4,6 +4,7 @@ includeDir["spdlog"] = "Lynx/vendor/spdlog/include"
 includeDir["glfw"] = "Lynx/vendor/GLFW/include"
 includeDir["glad"] = "Lynx/vendor/GLAD/include"
 includeDir["glm"] = "Lynx/vendor/glm"
+includeDir["stb_image"] = "Lynx/vendor/stb_image"
 
 workspace "Lynx"
     architecture "x64"
@@ -32,7 +33,9 @@ project "Lynx"
     files {
         "Lynx/src/**",
         "%{prj.name}/vendor/glm//**.hpp",
-		"%{prj.name}/vendor/glm//**.inl"
+        "%{prj.name}/vendor/glm//**.inl",
+        "%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp"
     }
 
     includedirs {
@@ -40,7 +43,8 @@ project "Lynx"
         "%{includeDir.spdlog}",
         "%{includeDir.glfw}",
         "%{includeDir.glad}",
-        "%{includeDir.glm}"
+        "%{includeDir.glm}",
+        "%{includeDir.stb_image}"
     }
 
     links {

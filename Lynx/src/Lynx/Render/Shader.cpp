@@ -16,7 +16,13 @@ namespace Lynx {
 		return 0;
 	}
 
-	Shader::Shader(const std::string& filePath)
+	Shader::~Shader()
+	{
+		//LX_PROFILE_FUNCTION();
+		glDeleteProgram(m_ShaderID);
+	}
+
+	void Shader::Load(const std::string& filePath)
 	{
 		//LX_PROFILE_FUNCTION();
 		std::string source = ReadFile(filePath);
@@ -30,20 +36,14 @@ namespace Lynx {
 		m_Name = filePath.substr(lastSlash, count);
 	}
 
-	Shader::Shader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-		: m_Name(name)
+	void Shader::Load(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
 		//LX_PROFILE_FUNCTION();
+		m_Name = name;
 		std::unordered_map<GLenum, std::string> shaderSources;
 		shaderSources[GL_VERTEX_SHADER] = vertexSrc;
 		shaderSources[GL_FRAGMENT_SHADER] = fragmentSrc;
 		Compile(shaderSources);
-	}
-
-	Shader::~Shader()
-	{
-		//LX_PROFILE_FUNCTION();
-		glDeleteProgram(m_RendererID);
 	}
 
 	std::string Shader::ReadFile(const std::string& filePath)
@@ -95,7 +95,9 @@ namespace Lynx {
 
 	void Shader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
-		//LX_PROFILE_FUNCTION();
+		//Create shader program
+		///////////////
+
 		GLuint program = glCreateProgram();
 		LX_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders");
 		std::array<GLenum, 2> glShaderIDs;
@@ -133,7 +135,10 @@ namespace Lynx {
 			glShaderIDs[glShaderIDIndex++] = shader;
 		}
 
-		m_RendererID = program;
+		m_ShaderID = program;
+
+		//Link
+		/////////////////
 
 		glLinkProgram(program);
 
@@ -160,16 +165,41 @@ namespace Lynx {
 			return;
 		}
 
+		//Detach and delete shaders
+		//////////////////
+
 		for (auto id : glShaderIDs) {
 			glDetachShader(program, id);
 			glDeleteShader(id);
+		}
+
+		//Store uniform information
+		/////////////////
+
+		GLint uniformCount = 0;
+		glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+		if (uniformCount != 0) {
+			GLint maxNameLength = 0;
+			GLsizei length = 0;
+			GLsizei size = 0;
+			GLenum type = GL_NONE;
+			glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+			auto uniformName = std::make_unique<char[]>(maxNameLength);
+			for (GLint i = 0; i < uniformCount; ++i) {
+				glGetActiveUniform(program, i, maxNameLength, &length, &size, &type, uniformName.get());
+				UniformInfo uniformInfo = {};
+				uniformInfo.location = glGetUniformLocation(program, uniformName.get());
+				uniformInfo.size = size;
+				m_Uniforms.emplace(std::make_pair(std::string(uniformName.get(), length), uniformInfo));
+			}
 		}
 	}
 
 	void Shader::Bind() const
 	{
 		//LX_PROFILE_FUNCTION();
-		glUseProgram(m_RendererID);
+		glUseProgram(m_ShaderID);
 	}
 
 	void Shader::Unbind() const
@@ -215,49 +245,49 @@ namespace Lynx {
 
 	void Shader::UploadUniformInt(const std::string& name, int value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform1i(location, value);
 	}
 
 	void Shader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform1iv(location, count, values);
 	}
 
 	void Shader::UploadUniformFloat(const std::string& name, float value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform1f(location, value);
 	}
 
 	void Shader::UploadUniformFloat2(const std::string& name, const glm::vec2& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform2f(location, value.x, value.y);
 	}
 
 	void Shader::UploadUniformFloat3(const std::string& name, const glm::vec3& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
 	void Shader::UploadUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
 	void Shader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 }

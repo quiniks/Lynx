@@ -17,6 +17,7 @@ namespace Lynx {
 	private:
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
+		float m_LastFrameTime = 0.0f;
 	protected:
 		LayerStack m_LayerStack;
 	};

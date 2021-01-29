@@ -1,5 +1,7 @@
 #include "Lynxpch.h"
 #include "App.h"
+#include "Lynx/Core/TimeStep.h"
+#include <GLFW/glfw3.h>
 
 namespace Lynx {
 	#define BIND_EVENT_FN(x) std::bind(&App::x, this, std::placeholders::_1)
@@ -18,8 +20,11 @@ namespace Lynx {
 	void App::Run()
 	{
 		while (m_Running) {
+			float time = (float)glfwGetTime();
+			TimeStep timeStep = time - m_LastFrameTime;
+			m_LastFrameTime = time;
 			for(auto& layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(timeStep);
 			m_Window->OnUpdate();
 		}
 	}
