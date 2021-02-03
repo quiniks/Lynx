@@ -1,6 +1,9 @@
 #include "SandBoxLayer.h"
 #include <glad/glad.h>
+#pragma warning( push )
+#pragma warning ( disable : 26812 )
 #include <glm/gtc/matrix_transform.hpp>
+#pragma warning( pop )
 
 SandBoxLayer::SandBoxLayer()
 {
@@ -57,6 +60,23 @@ SandBoxLayer::SandBoxLayer()
 		-1.0f, -0.5f, -1.0f
 	};
 
+	float quad[] = {
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1.0f
+	};
+
+	float points[] = {
+	-0.45f,  0.45f, //1.0f, 0.0f, 0.0f,
+	 0.45f,  0.45f, //0.0f, 1.0f, 0.0f,
+	 0.45f, -0.45f, //0.0f, 0.0f, 1.0f,
+	-0.45f, -0.45f //1.0f, 1.0f, 0.0f
+	};
+
 	/*
 	GLuint elements[] = {
 		0, 1, 2,//front
@@ -79,35 +99,24 @@ SandBoxLayer::SandBoxLayer()
 	//-Material
 	//--Shader
 
-	glEnable(GL_DEPTH_TEST);
+	///////////
 
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
+	auto cubeVB = std::make_shared<Lynx::VertexBuffer>(cube, sizeof(cube));
+	cubeVB->SetLayout({
+		{ Lynx::ShaderDataType::Float3, "a_Position" },
+		{ Lynx::ShaderDataType::Float2, "a_Texel" },
+	});
+	m_CubeVA.AddVertexBuffer(cubeVB);
 
-	glGenBuffers(1, &m_VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
-	/*
-	glGenBuffers(1, &m_EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-	*/
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	auto mirrorVB = std::make_shared<Lynx::VertexBuffer>(plane, sizeof(plane));
+	mirrorVB->SetLayout({{ Lynx::ShaderDataType::Float3, "a_Position" }});
+	m_MirrorVA.AddVertexBuffer(mirrorVB);
 
-	glGenVertexArrays(1, &m_VAO2);
-	glBindVertexArray(m_VAO2);
+	auto pointVB = std::make_shared<Lynx::VertexBuffer>(points, sizeof(points));
+	pointVB->SetLayout({{ Lynx::ShaderDataType::Float2, "a_Position" }});
+	m_PointVA.AddVertexBuffer(pointVB);
 
-	glGenBuffers(1, &m_VBO2);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane), plane, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-	glBindVertexArray(m_VAO);
+	///////////
 
 	m_CatTexture.Load("assets/textures/HUHhmm.png");
 	m_CatTexture2.Load("assets/textures/cat.png");
@@ -128,12 +137,12 @@ SandBoxLayer::SandBoxLayer()
 	m_TextureShader.SetInt("u_Texture", 0);
 	m_TextureShader.SetInt("u_Texture2", 1);
 	m_TextureShader.SetFloat4("u_Tint", glm::vec4(0.4f, 0.8f, 0.8f, 1.0f));
+	m_PostShader.Load("assets/shaders/postShader.glsl");
+	m_VoxelShader.Load("assets/shaders/voxelShader.glsl");
 }
 
 void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	static float rot = 0;
 	rot += timeStep.GetSeconds() * 25.0f;
@@ -141,11 +150,25 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_Transform = glm::mat4(1.0f);
 	m_Transform = glm::rotate(m_Transform, rot, glm::vec3(0.0f, 1.0f, 0.0f));
 	m_TextureShader.SetMat4("u_Model", m_Transform);
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
+
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	///////
 	//Draw cube
+	//glBindVertexArray(m_VAO);
+	m_CubeVA.Bind();
+	glEnable(GL_DEPTH_TEST);
+	m_TextureShader.Bind();
+	m_TextureShader.SetMat4("u_Model", m_Transform);
+	m_CatTexture.Bind(0);
+	m_CatTexture2.Bind(1);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//Draw floor
-	glBindVertexArray(m_VAO2);
+	m_MirrorVA.Bind();
 	m_FlatShader.Bind();
 	m_FlatShader.SetMat4("u_Model", m_Transform);
 	glEnable(GL_STENCIL_TEST);
@@ -158,7 +181,7 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	glDepthMask(GL_TRUE);
 
 	//Draw reflection
-	glBindVertexArray(m_VAO);
+	m_CubeVA.Bind();
 	m_TextureShader.Bind();
 	glStencilFunc(GL_EQUAL, 1, 0xff);
 	glStencilMask(0x00);
@@ -166,8 +189,21 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_TextureShader.SetMat4("u_Model", m_Transform);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDisable(GL_STENCIL_TEST);
-
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	////////
+	/*
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindVertexArray(m_VAO3);
+	glDisable(GL_DEPTH_TEST);
+	m_PostShader.Bind();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_FrameBuffer);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	*/
+	/////////
+	//glBindVertexArray(m_VAO4);
+	m_PointVA.Bind();
+	m_VoxelShader.Bind();
+	glDrawArrays(GL_POINTS, 0, 4);
 }
 
 void SandBoxLayer::OnEvent(Lynx::Event& event)
@@ -176,7 +212,16 @@ void SandBoxLayer::OnEvent(Lynx::Event& event)
 
 SandBoxLayer::~SandBoxLayer()
 {
-	glDeleteBuffers(1, &m_VBO);
-	//glDeleteBuffers(1, &m_EBO);
-	glDeleteVertexArrays(1, &m_VAO);
+	//glDeleteBuffers(1, &m_VBO);
+	//glDeleteBuffers(1, &m_VBO2);
+	//glDeleteBuffers(1, &m_VBO3);
+	//glDeleteBuffers(1, &m_VBO4);
+	//glDeleteVertexArrays(1, &m_VAO);
+	//glDeleteVertexArrays(1, &m_VAO2);
+	//glDeleteVertexArrays(1, &m_VAO3);
+	//glDeleteVertexArrays(1, &m_VAO4);
+	//
+	//glDeleteFramebuffers(1, &m_FrameBuffer);
+	//glDeleteTextures(1, &m_ColorBuffer);
+	//glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
 }

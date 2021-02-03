@@ -10,6 +10,8 @@ namespace Lynx {
 	static GLenum ShaderTypeFromString(const std::string& type) {
 		if (type == "vertex")
 			return GL_VERTEX_SHADER;
+		if (type == "geometry")
+			return GL_GEOMETRY_SHADER;
 		if (type == "fragment" || type == "pixel")
 			return GL_FRAGMENT_SHADER;
 		LX_CORE_ASSERT(false, "Unkown shader type");
@@ -42,6 +44,16 @@ namespace Lynx {
 		m_Name = name;
 		std::unordered_map<GLenum, std::string> shaderSources;
 		shaderSources[GL_VERTEX_SHADER] = vertexSrc;
+		shaderSources[GL_FRAGMENT_SHADER] = fragmentSrc;
+		Compile(shaderSources);
+	}
+
+	void Shader::Load(const std::string& name, const std::string& vertexSrc, const std::string& geometrySrc, const std::string& fragmentSrc)
+	{
+		m_Name = name;
+		std::unordered_map<GLenum, std::string> shaderSources;
+		shaderSources[GL_VERTEX_SHADER] = vertexSrc;
+		shaderSources[GL_GEOMETRY_SHADER] = geometrySrc;
 		shaderSources[GL_FRAGMENT_SHADER] = fragmentSrc;
 		Compile(shaderSources);
 	}
@@ -99,8 +111,8 @@ namespace Lynx {
 		///////////////
 
 		GLuint program = glCreateProgram();
-		LX_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders");
-		std::array<GLenum, 2> glShaderIDs;
+		LX_CORE_ASSERT(shaderSources.size() <= 3, "We only support 3 shaders");
+		std::array<GLenum, 3> glShaderIDs;
 		int glShaderIDIndex = 0;
 
 		for (auto& kv : shaderSources) {

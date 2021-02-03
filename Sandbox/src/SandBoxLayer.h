@@ -1,9 +1,5 @@
 #pragma once
-#include <Lynx/Core/Layer.h>
-#include <Lynx/Events/Event.h>
-#include <Lynx/Render/Shader.h>
-#include <Lynx/Render/Texture.h>
-#include <Lynx/Core/TimeStep.h>
+#include <Lynx.h>
 
 class SandBoxLayer : public Lynx::Layer {
 public:
@@ -14,10 +10,24 @@ public:
 private:
 	Lynx::Shader m_TextureShader;
 	Lynx::Shader m_FlatShader;
-	uint32_t m_VAO;
-	uint32_t m_VBO;
-	uint32_t m_VAO2;
-	uint32_t m_VBO2;
+	Lynx::Shader m_PostShader;
+	Lynx::Shader m_VoxelShader;
+
+	Lynx::VertexArray m_CubeVA;
+	Lynx::VertexArray m_MirrorVA;
+	Lynx::VertexArray m_QuadVA;
+	Lynx::VertexArray m_PointVA;
+	//uint32_t m_VAO;
+	//uint32_t m_VAO2;
+	//uint32_t m_VAO3;
+	//uint32_t m_VAO4;
+	//uint32_t m_VBO;
+	//uint32_t m_VBO2;
+	//uint32_t m_VBO3;
+	//uint32_t m_VBO4;
+	//uint32_t m_FrameBuffer;
+	//uint32_t m_ColorBuffer;
+	//uint32_t m_DepthStencilBuffer;
 	glm::mat4 m_Transform;
 	glm::mat4 m_View;
 	glm::mat4 m_Projection;

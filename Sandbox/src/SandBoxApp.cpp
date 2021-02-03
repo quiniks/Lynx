@@ -1,5 +1,6 @@
 #include "SandBoxLayer.h"
 #include <Lynx.h>
+#include <Lynx/Core/Entry.h>
 
 class SandBoxApp : public Lynx::App {
 public:

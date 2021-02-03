@@ -18,6 +18,7 @@ namespace Lynx {
 		virtual ~Shader();
 		void Load(const std::string& filePath);
 		void Load(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+		void Load(const std::string& name, const std::string& vertexSrc, const std::string& geometrySrc, const std::string& fragmentSrc);
 
 		void Bind() const;
 		void Unbind() const;

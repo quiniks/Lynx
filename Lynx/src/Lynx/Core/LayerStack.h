@@ -17,7 +17,7 @@ namespace Lynx {
 		std::vector<std::unique_ptr<Layer>> m_LayersU;
 		*/
 
-		void PushLayer(std::shared_ptr<Layer> layer);
+		void PushLayer(const std::shared_ptr<Layer> layer);
 		void PushOverlay(std::shared_ptr<Layer> overlay);
 		void PopLayer(std::shared_ptr<Layer> layer);
 		void PopOverlay(std::shared_ptr<Layer> overlay);
