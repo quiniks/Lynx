@@ -39,7 +39,9 @@ namespace Lynx {
 
 	class BufferLayout {
 	public:
-		BufferLayout() {}
+		BufferLayout() {
+			LX_CORE_INFO("Buffer layout created");
+		}
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
 			: m_Elements(elements)
 		{
@@ -65,6 +67,7 @@ namespace Lynx {
 	public:
 		VertexBuffer(size_t size);
 		VertexBuffer(float* vertices, size_t size);
+		VertexBuffer(float* vertices, size_t size, BufferLayout layout);
 		~VertexBuffer();
 		void Bind() const;
 		void Unbind() const;

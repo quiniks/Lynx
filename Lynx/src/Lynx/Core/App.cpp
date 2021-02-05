@@ -5,9 +5,12 @@
 
 namespace Lynx {
 	#define BIND_EVENT_FN(x) std::bind(&App::x, this, std::placeholders::_1)
+	App* App::s_Instance = nullptr;
 
 	App::App(const std::string& name)
 	{
+		LX_CORE_ASSERT(!s_Instance, "Applcation already exists");
+		s_Instance = this;
 		m_Window = Window::Create(WindowProps());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		LX_CORE_INFO("App created");

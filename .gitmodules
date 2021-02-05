@@ -6,4 +6,4 @@
 	url = https://github.com/quiniks/glfw.git
 [submodule "Lynx/vendor/GLM"]
 	path = Lynx/vendor/GLM
-	url = https://github.com/Groovounet/glm.git
+	url = https://github.com/g-truc/glm.git

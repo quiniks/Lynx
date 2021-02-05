@@ -100,7 +100,6 @@ SandBoxLayer::SandBoxLayer()
 	//--Shader
 
 	///////////
-
 	auto cubeVB = std::make_shared<Lynx::VertexBuffer>(cube, sizeof(cube));
 	cubeVB->SetLayout({
 		{ Lynx::ShaderDataType::Float3, "a_Position" },
@@ -109,7 +108,7 @@ SandBoxLayer::SandBoxLayer()
 	m_CubeVA.AddVertexBuffer(cubeVB);
 
 	auto mirrorVB = std::make_shared<Lynx::VertexBuffer>(plane, sizeof(plane));
-	mirrorVB->SetLayout({{ Lynx::ShaderDataType::Float3, "a_Position" }});
+	mirrorVB->SetLayout({ { Lynx::ShaderDataType::Float3, "a_Position" } });
 	m_MirrorVA.AddVertexBuffer(mirrorVB);
 
 	auto pointVB = std::make_shared<Lynx::VertexBuffer>(points, sizeof(points));

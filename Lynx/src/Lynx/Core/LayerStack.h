@@ -8,15 +8,6 @@ namespace Lynx {
 		LayerStack() = default;
 		~LayerStack();
 
-		/*
-		void PushLayerU(std::unique_ptr<Layer> layer) {
-			layer->OnAttach();
-			m_LayersU.emplace(m_LayersU.begin() + m_LayerInsertIndex, std::move(layer));
-			m_LayerInsertIndex++;
-		}
-		std::vector<std::unique_ptr<Layer>> m_LayersU;
-		*/
-
 		void PushLayer(const std::shared_ptr<Layer> layer);
 		void PushOverlay(std::shared_ptr<Layer> overlay);
 		void PopLayer(std::shared_ptr<Layer> layer);

@@ -54,6 +54,13 @@ namespace Lynx {
 
 	}
 
+	VertexBuffer::VertexBuffer(float* vertices, size_t size, BufferLayout layout) : m_Layout(layout)
+	{
+		glCreateBuffers(1, &m_VertexBufferID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
+
 	VertexBuffer::~VertexBuffer()
 	{
 		//LX_PROFILE_FUNCTION();
