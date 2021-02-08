@@ -5,7 +5,7 @@ namespace Lynx {
 	};
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type) {
-				switch (type) {
+		switch (type) {
 		case ShaderDataType::Float:		return 4;
 		case ShaderDataType::Float2:	return 4 * 2;
 		case ShaderDataType::Float3:	return 4 * 3;
@@ -40,7 +40,7 @@ namespace Lynx {
 	class BufferLayout {
 	public:
 		BufferLayout() {
-			LX_CORE_INFO("Buffer layout created");
+			//LX_CORE_INFO("Buffer layout created");
 		}
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
 			: m_Elements(elements)
@@ -66,8 +66,8 @@ namespace Lynx {
 	class VertexBuffer {
 	public:
 		VertexBuffer(size_t size);
-		VertexBuffer(float* vertices, size_t size);
-		VertexBuffer(float* vertices, size_t size, BufferLayout layout);
+		VertexBuffer(const void* vertices, size_t size);
+		//VertexBuffer(int* vertices, size_t size);
 		~VertexBuffer();
 		void Bind() const;
 		void Unbind() const;

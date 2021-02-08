@@ -3,16 +3,15 @@
 
 in vec3 a_Position;
 in vec2 a_Texel;
+in int a_Test;
 out vec2 v_Texel;
 
-uniform mat4 u_Model;
-uniform mat4 u_View;
-uniform mat4 u_Projection;
+uniform mat4 u_MVP;
 
 void main()
 {
     v_Texel = a_Texel;
-    gl_Position = u_Projection * u_View * u_Model * vec4(a_Position, 1.0);
+    gl_Position = u_MVP * vec4(a_Position.x , a_Position.y + a_Test, a_Position.z, 1.0);
 }
 
 #type fragment
