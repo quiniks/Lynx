@@ -64,22 +64,22 @@ void main()
 	vec4 dy = u_MVP[1] / 2.0 * u_VoxelSize;
 	vec4 dz = u_MVP[2] / 2.0 * u_VoxelSize;
 	
-	if ((v_EnabledSides[0] & 1) != 0 && isVisible(u_CameraPosition.x, center2.x))
+	if ((v_EnabledSides[0] & 2) != 0 && isVisible(u_CameraPosition.x, center2.x))
 		AddQuad(center + dx, dy, dz);
 	
-	if ((v_EnabledSides[0] & 2) != 0 && !isVisible(u_CameraPosition.x, center2.x))
+	if ((v_EnabledSides[0] & 1) != 0 && !isVisible(u_CameraPosition.x, center2.x))
 		AddQuad(center - dx, dz, dy);
 
-	if ((v_EnabledSides[0] & 4) != 0 && isVisible(u_CameraPosition.y, center2.y))
+	if ((v_EnabledSides[0] & 8) != 0 && isVisible(u_CameraPosition.y, center2.y))
 		AddQuad(center + dy, dz, dx);
 
-	if ((v_EnabledSides[0] & 8) != 0 && !isVisible(u_CameraPosition.y, center2.y))
+	if ((v_EnabledSides[0] & 4) != 0 && !isVisible(u_CameraPosition.y, center2.y))
 		AddQuad(center - dy, dx, dz);
 
-	if ((v_EnabledSides[0] & 16) != 0 && isVisible(u_CameraPosition.z, center2.z))
+	if ((v_EnabledSides[0] & 32) != 0 && isVisible(u_CameraPosition.z, center2.z))
 		AddQuad(center + dz, dx, dy);
 
-	if ((v_EnabledSides[0] & 32) != 0 && !isVisible(u_CameraPosition.z, center2.z))
+	if ((v_EnabledSides[0] & 16) != 0 && !isVisible(u_CameraPosition.z, center2.z))
 		AddQuad(center - dz, dy, dx);
 }
 

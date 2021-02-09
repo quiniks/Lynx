@@ -89,9 +89,9 @@ SandBoxLayer::SandBoxLayer()
 	};
 
 	VoxelVertex Voxels[] = {
-		{{1.0f, 0.0f, 0.0f}, {1.0f, 0.4f, 0.7f}, 63},
-		{{2.0f, 0.0f, 0.0f}, {0.9f, 0.9f, 0.6f}, 63},
-		{{3.0f, 0.0f, 0.0f}, {0.4f, 0.8f, 0.8f}, 63}
+		{{-1.0f, 0.0f, 0.0f}, {1.0f, 0.4f, 0.7f}, 63},
+		{{0.0f, 0.0f, 0.0f}, {0.9f, 0.9f, 0.6f}, 63},
+		{{1.0f, 0.0f, 0.0f}, {0.4f, 0.8f, 0.8f}, 63}
 	};
 
 	auto voxelVB = std::make_shared<Lynx::VertexBuffer>(Voxels, sizeof(Voxels));
@@ -143,12 +143,15 @@ SandBoxLayer::SandBoxLayer()
 	m_VoxelShader.Load("assets/shaders/voxelShader.glsl");
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
-	m_VoxelShader.UploadUniformFloat("u_VoxelSize", 0.5f);
+	m_VoxelShader.UploadUniformFloat("u_VoxelSize", 1.0f);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	//Lynx::App::Get().GetWindow().SetVSync(false);
+	m_VoxelMachine.CreateBox({ 5, 5, 10 });
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
@@ -167,11 +170,19 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	///////
+	/*
 	m_VoxelVA.Bind();
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", vp);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
 	glDrawArrays(GL_POINTS, 0, 3);
+	*/
+	///////
+	m_VoxelMachine.Bind();
+	m_VoxelShader.Bind();
+	m_VoxelShader.SetMat4("u_MVP", vp);
+	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
+	m_VoxelMachine.Draw();
 
 	LX_CORE_INFO("Elapsed Time: {0}s", timeStep);
 	//LX_CORE_INFO("cam pos: {0}, {1}, {2}", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);

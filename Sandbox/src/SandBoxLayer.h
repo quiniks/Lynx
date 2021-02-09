@@ -1,5 +1,6 @@
 #pragma once
 #include <Lynx.h>
+#include "Lynx/Voxel/VoxelMachine.h"
 
 class SandBoxLayer : public Lynx::Layer {
 public:
@@ -26,4 +27,6 @@ private:
 	Lynx::Texture m_CatTexture2;
 
 	Lynx::FreeCamera m_FreeCamera{ 45.0f, 1080.0f / 720.0f, 0.1f, 1000.0f };
+
+	Lynx::VoxelMachine m_VoxelMachine;
 };
