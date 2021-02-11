@@ -7,6 +7,7 @@ public:
 	SandBoxLayer();
 	~SandBoxLayer();
 	void OnUpdate(Lynx::TimeStep timeStep) override;
+	void OnImGuiRender() override;
 	void OnEvent(Lynx::Event& event) override;
 private:
 	Lynx::Shader m_TextureShader;
@@ -29,4 +30,5 @@ private:
 	Lynx::FreeCamera m_FreeCamera{ 45.0f, 1080.0f / 720.0f, 0.1f, 1000.0f };
 
 	Lynx::VoxelMachine m_VoxelMachine;
+	float m_TimeStepStat;
 };

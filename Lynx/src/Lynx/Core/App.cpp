@@ -10,10 +10,11 @@ namespace Lynx {
 	App::App(const std::string& name)
 	{
 		LX_CORE_ASSERT(!s_Instance, "Applcation already exists");
+		LX_CORE_INFO("App created");
 		s_Instance = this;
 		m_Window = Window::Create(WindowProps());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-		LX_CORE_INFO("App created");
+		m_ImGuiHelper.Init(m_Window->GetGLFWWindow());
 	}
 
 	App::~App()
@@ -28,6 +29,10 @@ namespace Lynx {
 			m_LastFrameTime = time;
 			for(auto& layer : m_LayerStack)
 				layer->OnUpdate(timeStep);
+			m_ImGuiHelper.Begin();
+			for (auto& layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiHelper.End();
 			m_Window->OnUpdate();
 		}
 	}

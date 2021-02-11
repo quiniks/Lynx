@@ -12,6 +12,7 @@ namespace Lynx {
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate(TimeStep timeStep) {}
+		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 		const std::string& GetName() const { return m_DebugName; }
 	protected:

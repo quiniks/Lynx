@@ -120,5 +120,5 @@ void Lynx::VoxelMachine::Bind()
 
 void Lynx::VoxelMachine::Draw()
 {
-	glDrawArrays(GL_POINTS, 0, m_TotalVoxels);
+	glDrawArrays(GL_POINTS, 0, (GLsizei)m_TotalVoxels);
 }

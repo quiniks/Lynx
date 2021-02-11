@@ -3,6 +3,7 @@
 #include "Lynx/Events/AppEvent.h"
 #include "Lynx/Core/Window.h"
 #include "Lynx/Core/LayerStack.h"
+#include "Lynx/Imgui/ImGuiHelper.h"
 #include <functional>
 
 namespace Lynx {
@@ -18,6 +19,7 @@ namespace Lynx {
 		bool OnWindowClosed(WindowCloseEvent& e);
 	private:
 		std::unique_ptr<Window> m_Window;
+		ImGuiHelper m_ImGuiHelper;
 		bool m_Running = true;
 		float m_LastFrameTime = 0.0f;
 		static App* s_Instance;

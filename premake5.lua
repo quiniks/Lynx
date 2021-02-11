@@ -5,6 +5,7 @@ includeDir["glfw"] = "Lynx/vendor/GLFW/include"
 includeDir["glad"] = "Lynx/vendor/GLAD/include"
 includeDir["glm"] = "Lynx/vendor/glm"
 includeDir["stb_image"] = "Lynx/vendor/stb_image"
+includeDir["imgui"] = "Lynx/vendor/imgui"
 
 workspace "Lynx"
     architecture "x64"
@@ -19,6 +20,7 @@ workspace "Lynx"
     group "Dependencies"
         include "Lynx/vendor/GLFW"
         include "Lynx/vendor/GLAD"
+        include "Lynx/vendor/imgui"
     group ""
 
 project "Lynx"
@@ -44,13 +46,15 @@ project "Lynx"
         "%{includeDir.glfw}",
         "%{includeDir.glad}",
         "%{includeDir.glm}",
-        "%{includeDir.stb_image}"
+        "%{includeDir.stb_image}",
+        "%{includeDir.imgui}"
     }
 
     links {
         "GLFW",
         "GLAD",
-        "opengl32"
+        "opengl32",
+        "imgui"
     }
 
     function useLynx()
@@ -59,6 +63,7 @@ project "Lynx"
             "%{includeDir.spdlog}",
             "%{includeDir.glm}",
             "%{includeDir.glad}",
+            "%{includeDir.imgui}"
         }
         links "Lynx"
     end

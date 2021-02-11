@@ -25,7 +25,7 @@ namespace Lynx {
 		void Bind();
 		void Draw();
 	private:
-		glm::ivec3 m_Size;
+		glm::ivec3 m_Size = { 0, 0, 0 };
 		std::vector<Voxel> m_Voxels;
 
 		VertexArray m_VoxelVA;

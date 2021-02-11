@@ -6,13 +6,13 @@
 namespace Lynx {
 	bool Input::IsKeyPressed(KeyCode key)
 	{
-		auto window = static_cast<GLFWwindow*>(App::Get().GetWindow().GetNativeWindow());
+		GLFWwindow* window = App::Get().GetWindow().GetGLFWWindow();
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 	bool Input::IsMouseButtonPressed(MouseCode button)
 	{
-		auto window = static_cast<GLFWwindow*>(App::Get().GetWindow().GetNativeWindow());
+		GLFWwindow* window = App::Get().GetWindow().GetGLFWWindow();
 		auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
 		return state == GLFW_PRESS;
 	}
@@ -28,7 +28,7 @@ namespace Lynx {
 	}
 	std::pair<float, float> Input::GetMousePos()
 	{
-		auto window = static_cast<GLFWwindow*>(App::Get().GetWindow().GetNativeWindow());
+		GLFWwindow* window = App::Get().GetWindow().GetGLFWWindow();
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 		return { (float)xpos, (float)ypos };

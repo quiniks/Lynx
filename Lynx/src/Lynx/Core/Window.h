@@ -30,7 +30,7 @@ namespace Lynx {
 		void SetVSync(bool enabled);
 		bool IsVSync() const;
 
-		virtual void* GetNativeWindow() const { return m_Window; }
+		GLFWwindow* GetGLFWWindow() const { return m_Window; }
 
 		void SetIcon(const std::string& filePath);
 	private:

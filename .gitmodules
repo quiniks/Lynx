@@ -7,3 +7,6 @@
 [submodule "Lynx/vendor/GLM"]
 	path = Lynx/vendor/GLM
 	url = https://github.com/g-truc/glm.git
+[submodule "Lynx/vendor/imgui"]
+	path = Lynx/vendor/imgui
+	url = https://github.com/quiniks/imgui.git

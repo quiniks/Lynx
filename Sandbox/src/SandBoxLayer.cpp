@@ -1,9 +1,7 @@
 #include "SandBoxLayer.h"
+#include "Lynx/Detail/glm.h"
+#include "Lynx/Detail/imgui.h"
 #include <glad/glad.h>
-#pragma warning( push )
-#pragma warning ( disable : 26812 )
-#include <glm/gtc/matrix_transform.hpp>
-#pragma warning( pop )
 
 SandBoxLayer::SandBoxLayer()
 {
@@ -156,6 +154,7 @@ SandBoxLayer::SandBoxLayer()
 
 void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 {
+	m_TimeStepStat = timeStep;
 	m_FreeCamera.OnUpdate(timeStep);
 
 	static float rot = 0;
@@ -184,7 +183,7 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
 	m_VoxelMachine.Draw();
 
-	LX_CORE_INFO("Elapsed Time: {0}s", timeStep);
+	//LX_CORE_INFO("Elapsed Time: {0}s", timeStep);
 	//LX_CORE_INFO("cam pos: {0}, {1}, {2}", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
 
 	/*
@@ -226,6 +225,13 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_GeoShader.Bind();
 	glDrawArrays(GL_POINTS, 0, 4);
 	*/
+}
+
+void SandBoxLayer::OnImGuiRender()
+{
+	ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+	ImGui::Text("Frame time step: %f", m_TimeStepStat);
+	ImGui::End();
 }
 
 void SandBoxLayer::OnEvent(Lynx::Event& event)
