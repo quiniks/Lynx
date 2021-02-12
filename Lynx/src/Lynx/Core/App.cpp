@@ -4,7 +4,6 @@
 #include <GLFW/glfw3.h>
 
 namespace Lynx {
-	#define BIND_EVENT_FN(x) std::bind(&App::x, this, std::placeholders::_1)
 	App* App::s_Instance = nullptr;
 
 	App::App(const std::string& name)
@@ -13,7 +12,7 @@ namespace Lynx {
 		LX_CORE_INFO("App created");
 		s_Instance = this;
 		m_Window = Window::Create(WindowProps());
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_Window->SetEventCallback(BIND_EVENT_FN(App::OnEvent));
 		m_ImGuiHelper.Init(m_Window->GetGLFWWindow());
 	}
 
@@ -40,7 +39,7 @@ namespace Lynx {
 	void App::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClosed));
+		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(App::OnWindowClosed));
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it) {
 			if (e.Handled)
@@ -48,6 +47,7 @@ namespace Lynx {
 			(*it)->OnEvent(e);
 		}
 	}
+
 	bool App::OnWindowClosed(WindowCloseEvent& e)
 	{
 		m_Running = false;

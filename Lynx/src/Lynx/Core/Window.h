@@ -39,9 +39,9 @@ namespace Lynx {
 	private:
 		GLFWwindow* m_Window;
 		struct WindowData {
-			std::string Title = "LYNX";
-			unsigned int Width = 1080;
-			unsigned int Height = 720;
+			std::string Title = "";
+			unsigned int Width = 0;
+			unsigned int Height = 0;
 			bool VSync = true;
 			EventCallbackFn EventCallback = nullptr;
 		} m_Data;

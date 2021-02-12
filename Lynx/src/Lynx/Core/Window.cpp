@@ -84,6 +84,12 @@ namespace Lynx {
 			data.EventCallback(event);
 		});
 
+		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowFrameResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
+
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			WindowCloseEvent event;

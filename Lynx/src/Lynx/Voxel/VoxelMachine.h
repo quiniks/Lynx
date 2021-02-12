@@ -8,7 +8,6 @@ namespace Lynx {
 		glm::vec3 Pos;
 		glm::vec3 Color;
 		bool Active;
-		bool Surface;
 	};
 
 	struct VoxelVertex {

@@ -16,6 +16,10 @@ namespace Lynx {
 		void SetViewportSize(float width, float height);
 		void OnUpdate(TimeStep ts);
 		glm::vec3 GetPosition();
+
+		float m_PanSpeed = 0.0f;
+		float m_PanMaxSpeed = 25.0f;
+		float m_PanAccel = 5.0f;
 	private:
 		void UpdateView();
 		void UpdateProjection();
@@ -33,9 +37,6 @@ namespace Lynx {
 		float m_ViewportWidth = 0.0f;
 		float m_ViewportHeight = 0.0f;
 		float m_Sensitivity = 0.003f;
-		float m_PanSpeed = 0.0f;
-		float m_PanMaxSpeed = 0.2f;
-		float m_PanAccel = 0.3f;
 		float m_RotationSpeed = 0.5f;
 		glm::vec2 m_PreviousMouse = { 0.0f, 0.0f };
 

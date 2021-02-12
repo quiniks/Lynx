@@ -21,6 +21,7 @@ namespace Lynx {
 		std::unique_ptr<Window> m_Window;
 		ImGuiHelper m_ImGuiHelper;
 		bool m_Running = true;
+		bool m_Minimized = false;
 		float m_LastFrameTime = 0.0f;
 		static App* s_Instance;
 	protected:

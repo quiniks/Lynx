@@ -59,7 +59,7 @@ namespace Lynx {
 
 	void FreeCamera::Pan(TimeStep ts)
 	{
-		m_PanSpeed = m_PanSpeed + (m_PanAccel * ts);
+		m_PanSpeed += m_PanAccel * ts;
 		if (m_PanSpeed > m_PanMaxSpeed)
 			m_PanSpeed = m_PanMaxSpeed;
 
@@ -96,7 +96,7 @@ namespace Lynx {
 
 		if (m_Moving) {
 			m_Right = glm::cross(m_Front, m_Up);
-			m_Position += glm::normalize(m_Front * forward + m_Up * up + m_Right * right) * m_PanSpeed;
+			m_Position += glm::normalize(m_Front * forward + m_Up * up + m_Right * right) * m_PanSpeed * glm::vec3(ts, ts, ts);
 		}
 		else
 			m_PanSpeed = 0.0f;
