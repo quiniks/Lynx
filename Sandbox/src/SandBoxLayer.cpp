@@ -47,11 +47,13 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 
 void SandBoxLayer::OnImGuiRender()
 {
-	ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoCollapse);
 	ImGui::Text("Frame time step: %.4f", m_TimeStepStat);
 	ImGui::Text("FPS: %.0f", 1.0f / m_TimeStepStat);
 	ImGui::Text("Camera speed: %.2f", m_FreeCamera.m_PanSpeed);
 	ImGui::Text("Camera pos: [%.1f, %.1f, %.1f]", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
+	glm::uvec3 cameraPosVoxelSpace = glm::round(m_FreeCamera.GetPosition() * 2.0f);
+	ImGui::Text("Camera voxel pos: [%i, %i, %i]", cameraPosVoxelSpace.x, cameraPosVoxelSpace.y, cameraPosVoxelSpace.z);
 	ImGui::End();
 }
 
