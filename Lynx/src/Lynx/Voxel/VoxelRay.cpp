@@ -1,9 +1,9 @@
 #include "Lynxpch.h"
 #include "VoxelRay.h"
 
-void Lynx::VoxelRay::PosFromRay(const glm::vec3& origin, const glm::vec3& direction, float maxDistance, std::vector<glm::ivec3>& positions)
+void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, float maxDistance, std::vector<glm::ivec3>& positions)
 {
-	//TODO: deal with difference in voxel spaces
+	origin = (origin + 0.25f) * 2.0f;
 
 	glm::vec3 pos = glm::floor(origin);
 	glm::vec3 step = glm::sign(direction);
