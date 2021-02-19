@@ -8,9 +8,6 @@ namespace Lynx {
 		glm::vec3 Pos;
 		glm::vec3 Color;
 		bool Active;
-
-		bool Visible;
-		uint32_t VBIndex;
 	};
 
 	struct VoxelVertex {
@@ -23,6 +20,7 @@ namespace Lynx {
 	public:
 		VoxelMachine() = default;
 		void CreateBox(glm::ivec3 size);
+		void UpdateBox();
 
 		int LinearFrom3D(const glm::ivec3& pos);
 		Voxel& GetVoxel(glm::ivec3 pos);

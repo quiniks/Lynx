@@ -32,7 +32,12 @@ void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, fl
 		tDelta.z = step.z / direction.z;
 	}
 
-	while (tMax.x < maxDistance && tMax.y < maxDistance && tMax.z < maxDistance) {
+	glm::vec3 dist(0.0f);
+	glm::vec3 originPos = pos;
+
+	while (dist.x < maxDistance && dist.y < maxDistance && dist.z < maxDistance) {
+		
+		dist = glm::abs(pos - originPos);
 		positions.emplace_back(pos.x, pos.y, pos.z);
 
 		if ((nonZeroDir.x || nonZeroDir.z) && tMax.x < tMax.y) {

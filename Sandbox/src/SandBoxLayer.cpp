@@ -14,13 +14,14 @@ SandBoxLayer::SandBoxLayer()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	//Lynx::App::Get().GetWindow().SetVSync(false);
-	m_VoxelMachine.CreateBox({ 5, 5, 5 });
+	m_VoxelMachine.CreateBox({ 16, 16, 16 });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 {
+	
 	m_TimeStepStat = timeStep;
 	m_FreeCamera.OnUpdate(timeStep);
 
@@ -40,9 +41,6 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_VoxelShader.SetMat4("u_MVP", vp);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
 	m_VoxelMachine.Draw();
-
-	//LX_CORE_INFO("Elapsed Time: {0}s", timeStep);
-	//LX_CORE_INFO("cam pos: {0}, {1}, {2}", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
 }
 
 void SandBoxLayer::OnImGuiRender()
@@ -54,7 +52,7 @@ void SandBoxLayer::OnImGuiRender()
 	ImGui::Text("Camera pos: [%.1f, %.1f, %.1f]", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
 	glm::uvec3 cameraPosVoxelSpace = glm::round(m_FreeCamera.GetPosition() * 2.0f);
 	ImGui::Text("Camera voxel pos: [%i, %i, %i]", cameraPosVoxelSpace.x, cameraPosVoxelSpace.y, cameraPosVoxelSpace.z);
-	ImGui::Text("Look voxel pos: [%i, %i, %i]", m_LookVoxel.x, m_LookVoxel.y, m_LookVoxel.z);
+	ImGui::Text("Clicked voxel pos: [%i, %i, %i]", m_LookVoxel.x, m_LookVoxel.y, m_LookVoxel.z);
 	ImGui::End();
 }
 
@@ -74,7 +72,18 @@ bool SandBoxLayer::OnFrameResize(Lynx::WindowFrameResizeEvent& event)
 
 bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 {
+	bool state = false;
+	bool clicked = false;
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
+		state = false;
+		clicked = true;
+	}
+	else if (event.GetMouseButton() == Lynx::Mouse::ButtonRight) {
+		state = true;
+		clicked = true;
+	}
+
+	if (clicked) {
 		GLint viewportSize[4];
 		glGetIntegerv(GL_VIEWPORT, viewportSize);
 		float x = (2.0f * Lynx::Input::GetMouseX()) / viewportSize[2] - 1.0f;
@@ -90,7 +99,15 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 			glm::ivec3 pos = *i;
 			if (m_VoxelMachine.InBounds(pos) && m_VoxelMachine.GetVoxel(pos).Active) {
 				m_LookVoxel = pos;
-				m_VoxelMachine.Delete(pos);
+				if (state && VoxelsAlongRay.size() > 1 && i != VoxelsAlongRay.begin()) {
+					glm::ivec3 prevPos = *(i - 1);
+					if (m_VoxelMachine.InBounds(prevPos))
+						m_VoxelMachine.GetVoxel(prevPos).Active = true;
+				}
+				else if (!state) {
+					m_VoxelMachine.GetVoxel(pos).Active = false;
+				}
+				m_VoxelMachine.UpdateBox();
 				break;
 			}
 		}
