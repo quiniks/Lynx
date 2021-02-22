@@ -1,6 +1,7 @@
 #include "SandBoxLayer.h"
 #include "Lynx/Detail/glm.h"
 #include "Lynx/Detail/imgui.h"
+#include "Lynx/Voxel/Voxel.h"
 #include <glad/glad.h>
 
 SandBoxLayer::SandBoxLayer()
@@ -8,15 +9,18 @@ SandBoxLayer::SandBoxLayer()
 	m_VoxelShader.Load("assets/shaders/voxelShader.glsl");
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
-	m_VoxelShader.UploadUniformFloat("u_VoxelSize", 0.5f);
+	m_VoxelShader.SetFloat("u_VoxelSize", 0.2f);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
+	m_VoxelShader.SetFloat3("u_LightPosition", { 3.75f, 10.0f, 3.75f });
+	m_VoxelShader.SetFloat3("u_AmbientColor", { 0.3f, 0.3f, 0.3f });
+	m_VoxelShader.SetFloat3("u_DiffuseColor", { 1.0f, 1.0f, 1.0f });
+
+	Lynx::App::Get().GetWindow().SetVSync(false);
+
+	m_Chunk.Create(-5.0f, -5.0f, -5.0f);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	//Lynx::App::Get().GetWindow().SetVSync(false);
-	m_VoxelMachine.CreateBox({ 16, 16, 16 });
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
@@ -33,14 +37,13 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	glm::mat4 vp = m_FreeCamera.GetViewProjection();
 	glm::mat4 mvp = m_FreeCamera.GetViewProjection() * m_Transform;
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(1.0f, 0.9f, 0.85f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	m_VoxelMachine.Bind();
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", vp);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
-	m_VoxelMachine.Draw();
+	m_Chunk.Render();
 }
 
 void SandBoxLayer::OnImGuiRender()
@@ -72,6 +75,7 @@ bool SandBoxLayer::OnFrameResize(Lynx::WindowFrameResizeEvent& event)
 
 bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 {
+	
 	bool state = false;
 	bool clicked = false;
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
@@ -97,17 +101,17 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 
 		for (auto i = VoxelsAlongRay.begin(); i != VoxelsAlongRay.end(); ++i) {
 			glm::ivec3 pos = *i;
-			if (m_VoxelMachine.InBounds(pos) && m_VoxelMachine.GetVoxel(pos).Active) {
+			if (Lynx::Chunk::Inside(pos.x, pos.y, pos.z) && m_Chunk.GetVoxel(pos.x, pos.y, pos.z) != Lynx::Voxel::Type::Empty) {
 				m_LookVoxel = pos;
 				if (state && VoxelsAlongRay.size() > 1 && i != VoxelsAlongRay.begin()) {
 					glm::ivec3 prevPos = *(i - 1);
-					if (m_VoxelMachine.InBounds(prevPos))
-						m_VoxelMachine.GetVoxel(prevPos).Active = true;
+					if (Lynx::Chunk::Inside(prevPos.x, prevPos.y, prevPos.z))
+						m_Chunk.GetVoxel(prevPos.x, prevPos.y, prevPos.z) = Lynx::Voxel::Type::Solid;
 				}
 				else if (!state) {
-					m_VoxelMachine.GetVoxel(pos).Active = false;
+					m_Chunk.GetVoxel(pos.x, pos.y, pos.z) = Lynx::Voxel::Type::Empty;
 				}
-				m_VoxelMachine.UpdateBox();
+				m_Chunk.Update();
 				break;
 			}
 		}

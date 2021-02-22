@@ -3,7 +3,9 @@
 
 void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, float maxDistance, std::vector<glm::ivec3>& positions)
 {
-	origin = (origin + 0.25f) * 2.0f;
+	float voxelSize = 0.2f;
+	float offset = -5.0f;
+	origin = (origin + voxelSize / 2.0f - offset) * 1.0f/ voxelSize;
 
 	glm::vec3 pos = glm::floor(origin);
 	glm::vec3 step = glm::sign(direction);

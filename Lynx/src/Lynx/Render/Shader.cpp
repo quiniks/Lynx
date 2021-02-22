@@ -220,6 +220,11 @@ namespace Lynx {
 		glUseProgram(0);
 	}
 
+	void Shader::SetFloat(const std::string& name, float value)
+	{
+		UploadUniformFloat(name, value);
+	}
+
 	void Shader::SetFloat2(const std::string& name, const glm::vec2& value)
 	{
 		//LX_PROFILE_FUNCTION();

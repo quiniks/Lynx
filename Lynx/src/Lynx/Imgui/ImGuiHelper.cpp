@@ -36,10 +36,10 @@ void Lynx::ImGuiHelper::Init(GLFWwindow* window)
 	{
 		colors[ImGuiCol_Text] = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.59f, 0.58f, 0.58f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.08f, 0.09f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.08f, 0.09f, 0.75f);
 		colors[ImGuiCol_ChildBg] = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
 		colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
-		colors[ImGuiCol_Border] = ImVec4(0.24f, 0.28f, 0.32f, 1.00f);
+		colors[ImGuiCol_Border] = ImVec4(0.24f, 0.28f, 0.32f, 0.00f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.04f, 0.04f, 0.04f, 0.00f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.15f, 0.18f, 0.20f, 1.00f);
 		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.15f, 0.18f, 0.20f, 0.50f);
