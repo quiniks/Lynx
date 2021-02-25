@@ -47,6 +47,6 @@ namespace Lynx {
 
 		glm::mat4 m_ProjectionMatrix = glm::mat4{ 0.0f };
 		glm::mat4 m_ViewMatrix = glm::mat4{ 0.0f };
-		glm::vec3 m_Position = {0.0f, 0.0f, 3.0f};
+		glm::vec3 m_Position = {-2.0f, 6.0f, -2.0f};
 	};
 }

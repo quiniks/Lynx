@@ -25,11 +25,18 @@ namespace Lynx {
 	{
 		//LX_PROFILE_FUNCTION();
 		glCreateVertexArrays(1, &m_VertexArrayID);
+		//LX_CORE_INFO("VA created, ID: {0}", m_VertexArrayID);
+	}
+
+	Ref<VertexArray> VertexArray::Create()
+	{
+		return Ref<VertexArray>(new VertexArray);
 	}
 
 	VertexArray::~VertexArray()
 	{
 		//LX_PROFILE_FUNCTION();
+		//LX_CORE_INFO("VA destroyed");
 		glDeleteVertexArrays(1, &m_VertexArrayID);
 	}
 

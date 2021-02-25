@@ -65,9 +65,8 @@ namespace Lynx {
 
 	class VertexBuffer {
 	public:
-		VertexBuffer(size_t size);
-		VertexBuffer(const void* vertices, size_t size);
-		//VertexBuffer(int* vertices, size_t size);
+		static Ref<VertexBuffer> Create(size_t size);
+		static Ref<VertexBuffer> Create(const void* vertices, size_t size);
 		~VertexBuffer();
 		void Bind() const;
 		void Unbind() const;
@@ -76,6 +75,8 @@ namespace Lynx {
 		const BufferLayout& GetLayout() const { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
 	private:
+		VertexBuffer(size_t size);
+		VertexBuffer(const void* vertices, size_t size);
 		uint32_t m_VertexBufferID;
 		BufferLayout m_Layout;
 	};

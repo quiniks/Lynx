@@ -40,14 +40,14 @@ namespace Lynx {
 		LX_CORE_TRACE("Voxel data:");
 		LX_CORE_TRACE(" Total: {0} voxels at {1} bytes", m_VoxelVertices.size(), m_VoxelVertices.size() * sizeof(VoxelVertex));
 		LX_CORE_TRACE(" Voxel: {0} bytes", sizeof(VoxelVertex));
-		m_TotalVoxels = m_VoxelVertices.size();
-		m_VoxelVB = std::make_shared<VertexBuffer>(&m_VoxelVertices[0], linearSize * sizeof(VoxelVertex));
-		m_VoxelVB->SetLayout({
-			{ Lynx::ShaderDataType::Float3, "a_Position" },
-			{ Lynx::ShaderDataType::Float3, "a_Color" },
-			{ Lynx::ShaderDataType::Int, "a_EnabledSides" }
-		});
-		m_VoxelVA.AddVertexBuffer(m_VoxelVB);
+		//m_TotalVoxels = m_VoxelVertices.size();
+		//m_VoxelVB = std::make_shared<VertexBuffer>(&m_VoxelVertices[0], linearSize * sizeof(VoxelVertex));
+		//m_VoxelVB->SetLayout({
+		//	{ Lynx::ShaderDataType::Float3, "a_Position" },
+		//	{ Lynx::ShaderDataType::Float3, "a_Color" },
+		//	{ Lynx::ShaderDataType::Int, "a_EnabledSides" }
+		//});
+		//m_VoxelVA.AddVertexBuffer(m_VoxelVB);
 	}
 
 	void VoxelMachine::UpdateBox()

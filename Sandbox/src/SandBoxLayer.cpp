@@ -6,18 +6,20 @@
 
 SandBoxLayer::SandBoxLayer()
 {
+
 	m_VoxelShader.Load("assets/shaders/voxelShader.glsl");
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
-	m_VoxelShader.SetFloat("u_VoxelSize", 0.2f);
+	m_VoxelShader.SetFloat("u_VoxelSize", Lynx::Voxel::SIZE);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
-	m_VoxelShader.SetFloat3("u_LightPosition", { 3.75f, 10.0f, 3.75f });
+	m_VoxelShader.SetFloat3("u_LightPosition", { 10.0f, 100.0f, 10.0f });
 	m_VoxelShader.SetFloat3("u_AmbientColor", { 0.3f, 0.3f, 0.3f });
 	m_VoxelShader.SetFloat3("u_DiffuseColor", { 1.0f, 1.0f, 1.0f });
 
 	Lynx::App::Get().GetWindow().SetVSync(false);
 
-	m_Chunk.Create(-5.0f, -5.0f, -5.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//m_Chunk.CreateMesh(-5.0f, -5.0f, -5.0f);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -43,13 +45,13 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", vp);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
-	m_Chunk.Render();
+	m_World.Render();
 }
 
 void SandBoxLayer::OnImGuiRender()
 {
 	ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoCollapse);
-	ImGui::Text("Frame time step: %.4f", m_TimeStepStat);
+	ImGui::Text("Frame time step: %.6fs", m_TimeStepStat);
 	ImGui::Text("FPS: %.0f", 1.0f / m_TimeStepStat);
 	ImGui::Text("Camera speed: %.2f", m_FreeCamera.m_PanSpeed);
 	ImGui::Text("Camera pos: [%.1f, %.1f, %.1f]", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
@@ -75,7 +77,7 @@ bool SandBoxLayer::OnFrameResize(Lynx::WindowFrameResizeEvent& event)
 
 bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 {
-	
+	/*
 	bool state = false;
 	bool clicked = false;
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
@@ -116,6 +118,7 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 			}
 		}
 	}
+	*/
 	return true;
 }
 

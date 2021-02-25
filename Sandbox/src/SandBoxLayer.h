@@ -1,6 +1,7 @@
 #pragma once
 #include <Lynx.h>
-#include <Lynx/Voxel/Chunk.h>
+//#include <Lynx/Voxel/Chunk.h>
+#include <Lynx/Voxel/World.h>
 
 class SandBoxLayer : public Lynx::Layer {
 public:
@@ -13,7 +14,7 @@ public:
 	bool OnMousePressedButton(Lynx::MouseButtonPressedEvent& event);
 private:
 	Lynx::Shader m_VoxelShader;
-	Lynx::Chunk m_Chunk;
+	Lynx::World m_World;
 	//Lynx::VoxelMachine m_VoxelMachine;
 
 	glm::mat4 m_Transform = glm::mat4(1.0f);
