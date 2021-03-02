@@ -23,8 +23,8 @@
 	#define LX_ASSERT(x, ...) {if(!(x)) {LX_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak();}}
 	#define LX_CORE_ASSERT(x, ...) {if(!(x)) {LX_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak();}}
 #else
-	#define LX_ASSERT(x, ...)
-	#define LX_CORE_ASSERT(x, ...)
+	#define LX_ASSERT(x, ...) {}
+	#define LX_CORE_ASSERT(x, ...) {}
 #endif
 
 #define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)

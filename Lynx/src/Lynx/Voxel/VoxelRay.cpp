@@ -3,7 +3,7 @@
 
 void Lynx::VoxelRay::PosFromRay(const VoxelRayData& rayData, std::vector<glm::ivec3>& positions)
 {
-
+	//convert to unit voxel space (voxel has a size of 1)
 	const glm::vec3 origin = (rayData.origin + rayData.offset) * 1.0f / rayData.unitSize;
 	const glm::vec3& direction = rayData.direction;
 	const float maxDistance = rayData.maxDistance;
@@ -70,6 +70,13 @@ float Lynx::VoxelRay::TAtBound(float origin, float direction)
 {
 	////Solve o+td=1 in each dimension
 	float distToBoundTowardDir = 0.0f;
-	distToBoundTowardDir = direction > 0.0f ? ceilf(origin) - origin : origin - floorf(origin);
+	distToBoundTowardDir = direction > 0.0f ? Ciel(origin) - origin : origin - floorf(origin);
 	return distToBoundTowardDir / abs(direction);
+}
+
+float Lynx::VoxelRay::Ciel(float value)
+{
+	float integ;
+	float fract = modf(value, &integ);
+	if (fract == 0.0f) return integ + 1.0f; else return ceilf(value);
 }

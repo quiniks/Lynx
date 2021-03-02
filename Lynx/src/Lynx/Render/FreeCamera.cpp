@@ -32,6 +32,12 @@ namespace Lynx {
 		return m_Position;
 	}
 
+	void FreeCamera::SetPosition(const glm::vec3& pos)
+	{
+		m_Position = pos;
+		UpdateView();
+	}
+
 	void FreeCamera::SetViewportSize(float width, float height)
 	{
 		m_ViewportWidth = width; m_ViewportHeight = height;

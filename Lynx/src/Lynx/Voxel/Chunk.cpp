@@ -8,7 +8,6 @@ namespace Lynx {
 	Chunk::Chunk(World& world, int x, int y, int z) : m_World(world)
 	{
 		m_ChunkPosition = { x, y, z };
-		//m_World = world;
 
 		m_Voxels.reserve((uint32_t)pow(SIZE, 3));
 		for (int x = 0; x < SIZE; x++) {
@@ -23,30 +22,34 @@ namespace Lynx {
 	void Chunk::CreateMesh(float x, float y, float z)
 	{
 		m_Position = { x, y, z };
-
-		CreateVoxelData();
+		int maxVertices = 36 * (int)pow(SIZE, 3);
 		//////////
 		m_VA = VertexArray::Create();
-		m_VB = VertexBuffer::Create(&m_VoxelData[0], m_VoxelData.size() * sizeof(VertexData));
+		m_VB = VertexBuffer::Create(nullptr, maxVertices * sizeof(VertexData));
 		m_VB->SetLayout({
 			{ Lynx::ShaderDataType::Float3, "a_Position" },
 			{ Lynx::ShaderDataType::Float3, "a_Color" },
-			{ Lynx::ShaderDataType::Int, "a_ActiveSides" }
+			{ Lynx::ShaderDataType::Float3, "a_Normal" }
 			});
 		m_VA->AddVertexBuffer(m_VB);
+
+		CreateVoxelData();
+		LX_INFO("init size: {0}", m_VertexData.size());
+		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 	}
 
 	void Chunk::Update()
 	{
-		m_VoxelData.clear();
+		m_VertexData.clear();
 		CreateVoxelData();
-		m_VB->SetData(&m_VoxelData[0], m_VoxelData.size() * sizeof(VertexData));
+		//m_VB->Test(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
+		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 	}
 
 	void Chunk::Render()
 	{
 		m_VA->Bind();
-		glDrawArrays(GL_POINTS, 0, (GLsizei)m_VoxelData.size());
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_VertexData.size());
 	}
 
 	Voxel::Type& Chunk::GetVoxel(int x, int y, int z) {
@@ -59,6 +62,13 @@ namespace Lynx {
 	{
 		int a = SIZE * SIZE;	//Z * Y
 		int b = SIZE;			//Z
+		return a * x + b * y + z;
+	}
+
+	int Chunk::VIndexLinear(int x, int y, int z)
+	{
+		int a = (SIZE + 1) * (SIZE + 1);	//Z * Y
+		int b = (SIZE + 1);			//Z
 		return a * x + b * y + z;
 	}
 
@@ -96,110 +106,82 @@ namespace Lynx {
 		return Voxel::SIX_SIDES - obscuredSides;
 	}
 
-	void Chunk::AllActiveSides(std::vector<int>& sides)
+	int Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, const glm::vec3& normal)
 	{
-		sides.resize((uint32_t)pow(SIZE, 3), Voxel::NO_SIDES);
-
-
-		for (int x = 0; x < SIZE; x++) {
-			for (int y = 0; y < SIZE; y++) {
-				for (int z = 0; z < SIZE; z++) {
-
-					int& SidesThis = sides.at(IndexLinear(x, y, z));
-					//X
-					if (x > 0 && m_Voxels.at(IndexLinear(x - 1, y, z)) == Voxel::Type::Empty) {
-						SidesThis += Voxel::NX_SIDE;
-						sides.at(IndexLinear(x - 1, y, z)) += Voxel::PX_SIDE;
-					}
-					else if (x == 0)
-						SidesThis += AdjacentChunkCheckN(m_ChunkPosition.x, { -1, 0, 0 }, { x, y, z }, Voxel::NX_SIDE);// Voxel::NX_SIDE;
-					else if (x == SIZE - 1)
-						SidesThis += AdjacentChunkCheckP(m_ChunkPosition.x, World::SIZE.x, { 1, 0, 0 }, { x, y, z }, Voxel::PX_SIDE);// Voxel::PX_SIDE;
-					//Y
-					if (y > 0 && m_Voxels.at(IndexLinear(x, y - 1, z)) == Voxel::Type::Empty) {
-						SidesThis += Voxel::NY_SIDE;
-						sides.at(IndexLinear(x, y - 1, z)) += Voxel::PY_SIDE;
-					}
-					else if (y == 0)
-						SidesThis += AdjacentChunkCheckN(m_ChunkPosition.y, { 0, -1, 0 }, { x, y, z }, Voxel::NY_SIDE);// Voxel::NY_SIDE;
-					else if (y == SIZE - 1)
-						SidesThis += AdjacentChunkCheckP(m_ChunkPosition.y, World::SIZE.y, { 0, 1, 0 }, { x, y, z }, Voxel::PY_SIDE);// Voxel::PY_SIDE;
-					//Z
-					if (z > 0 && m_Voxels.at(IndexLinear(x, y, z - 1)) == Voxel::Type::Empty) {
-						SidesThis += Voxel::NZ_SIDE;
-						sides.at(IndexLinear(x, y, z - 1)) += Voxel::PZ_SIDE;
-					}
-					else if (z == 0)
-						SidesThis += AdjacentChunkCheckN(m_ChunkPosition.z, { 0, 0, -1 }, { x, y, z }, Voxel::NZ_SIDE);// Voxel::NZ_SIDE;
-					else if (z == SIZE - 1)
-						SidesThis += AdjacentChunkCheckP(m_ChunkPosition.z, World::SIZE.z, { 0, 0, 1 }, { x, y, z }, Voxel::PZ_SIDE);// Voxel::PZ_SIDE;
-				}
-			}
-		}
-	}
-
-	int Chunk::AdjacentChunkCheckN(int chunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
-	{
-		if (chunkAxisPos > 0) {
-			Chunk& AdjChunk = m_World.GetChunk(m_ChunkPosition.x + offset.x, m_ChunkPosition.y + offset.y, m_ChunkPosition.z + offset.z);
-			bool isAdjChunkVoxelEmpty = false;
-			if (offset.x != 0)
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(SIZE - 1, voxelPos.y, voxelPos.z) == Voxel::Type::Empty;
-			else if (offset.y != 0)
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(voxelPos.x, SIZE - 1, voxelPos.z) == Voxel::Type::Empty;
-			else
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(voxelPos.x, voxelPos.y, SIZE - 1) == Voxel::Type::Empty;
-
-			if (isAdjChunkVoxelEmpty)
-				return side;
-		}
-		else {
-			return side;
-		}
-		return Voxel::NO_SIDES;
-	}
-
-	int Chunk::AdjacentChunkCheckP(int chunkAxisPos, int worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
-	{
-		if (chunkAxisPos < worldAxisSize - 1) {
-			Chunk& AdjChunk = m_World.GetChunk(m_ChunkPosition.x + offset.x, m_ChunkPosition.y + offset.y, m_ChunkPosition.z + offset.z);
-			bool isAdjChunkVoxelEmpty = false;
-			if (offset.x != 0)
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(0, voxelPos.y, voxelPos.z) == Voxel::Type::Empty;
-			else if (offset.y != 0)
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(voxelPos.x, 0, voxelPos.z) == Voxel::Type::Empty;
-			else
-				isAdjChunkVoxelEmpty = AdjChunk.GetVoxel(voxelPos.x, voxelPos.y, 0) == Voxel::Type::Empty;
-
-			if (isAdjChunkVoxelEmpty)
-				return side;
-		}
-		else {
-			return side;
-		}
-		return Voxel::NO_SIDES;
+		glm::vec3 worldPos = (pos * Voxel::SIZE + m_Position);
+		m_VertexData.emplace_back(VertexData{ worldPos, color, normal});
+		//LX_INFO("worldPos: {0}, {1}, {2}", worldPos.x, worldPos.y, worldPos.z);
+		return 0;//(int)m_VertexData.size() - 1;
 	}
 
 	void Chunk::CreateVoxelData() {
-		std::vector<int> sides;
-		AllActiveSides(sides);
+		m_VertexData.reserve((uint32_t)(pow(SIZE, 3) * 8));
 
 		glm::vec3 color = (glm::vec3)m_ChunkPosition / (glm::vec3)m_World.SIZE + glm::vec3{ 0.8f, 0.2f, 0.3f };
 
-		m_VoxelData.reserve((uint32_t)pow(SIZE, 3));
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {
 				for (int z = 0; z < SIZE; z++) {
-					int index = IndexLinear(x, y, z);
-					if (m_Voxels.at(index) != Voxel::Type::Empty) {
-						m_VoxelData.emplace_back(VertexData{ 
-							{ x * Voxel::SIZE + m_Position.x, y * Voxel::SIZE + m_Position.y, z * Voxel::SIZE + m_Position.z }, 
-							color,
-							ActiveSidesOfVoxel(x, y, z)/*sides.at(IndexLinear(x, y, z))*/
-						});
+					int voxelIndex = IndexLinear(x, y, z);
+					if (m_Voxels.at(voxelIndex) != Voxel::Type::Empty) {
+						
+						if (x == 0 || (x > 0 && m_Voxels.at(IndexLinear(x - 1, y, z)) == Voxel::Type::Empty)) {
+							AddVertex({ 0.0f + x , 0.0f + y , 1.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 0.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+							AddVertex({ 0.0f + x , 0.0f + y , 0.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+							AddVertex({ 0.0f + x , 0.0f + y , 1.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 1.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 0.0f + z  }, color, { -1.0f, 0.0f, 0.0f });
+						}
+
+						if (x == SIZE - 1 || (x < SIZE - 1 && m_Voxels.at(IndexLinear(x + 1, y, z)) == Voxel::Type::Empty)) {
+							AddVertex({ 1.0f + x, 0.0f + y, 0.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 1.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 1.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 0.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 0.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 1.0f + z }, color, { 1.0f, 0.0f, 0.0f });
+						}
+
+						if (y == 0 || (y > 0 && m_Voxels.at(IndexLinear(x, y - 1, z)) == Voxel::Type::Empty)) {
+							AddVertex({ 0.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+							AddVertex({ 0.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+							AddVertex({ 0.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, -1.0f, 0.0f });
+						}
+
+						if (z == SIZE - 1 || (z < SIZE - 1 && m_Voxels.at(IndexLinear(x, y, z + 1)) == Voxel::Type::Empty)) {
+							AddVertex({ 1.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+							AddVertex({ 0.0f + x, 1.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+							AddVertex({ 0.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+							AddVertex({ 0.0f + x, 1.0f + y, 1.0f + z }, color, { 0.0f, 0.0f, 1.0f });
+						}
+						
+						if (y == SIZE - 1 || (y < SIZE - 1 && m_Voxels.at(IndexLinear(x, y + 1, z)) == Voxel::Type::Empty)) {
+							AddVertex({ 1.0f + x , 1.0f + y , 0.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 1.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+							AddVertex({ 1.0f + x , 1.0f + y , 1.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+							AddVertex({ 1.0f + x , 1.0f + y , 0.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 0.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+							AddVertex({ 0.0f + x , 1.0f + y , 1.0f + z  }, color, { 0.0f, 1.0f, 0.0f });
+						}
+						
+						if (z == 0 || (z > 0 && m_Voxels.at(IndexLinear(x, y, z - 1)) == Voxel::Type::Empty)) {
+							AddVertex({ 0.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+							AddVertex({ 1.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+							AddVertex({ 0.0f + x, 0.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+							AddVertex({ 0.0f + x, 1.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+							AddVertex({ 1.0f + x, 1.0f + y, 0.0f + z }, color, { 0.0f, 0.0f, -1.0f });
+						}
 					}
 				}
 			}
 		}
+
 	}
 }

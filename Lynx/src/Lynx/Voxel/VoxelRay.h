@@ -15,6 +15,7 @@ namespace Lynx {
 		static void PosFromRay(const VoxelRayData& rayData, std::vector<glm::ivec3>& positions);
 	private:
 		static float TAtBound(float origin, float direction);
+		static float Ciel(float value);
 	};
 }
 

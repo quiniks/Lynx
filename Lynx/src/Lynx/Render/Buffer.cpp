@@ -88,21 +88,27 @@ namespace Lynx {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
+	void VertexBuffer::Test(const void* vertices, size_t size)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
+
 	/////////////////////////////////////////////////////////////////
 	// IndexBuffer //////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 
-	IndexBuffer::IndexBuffer(int* indices, size_t count)
+	IndexBuffer::IndexBuffer(int* indices, int count)
 		: m_Count(count)
 	{
 		//LX_PROFILE_FUNCTION();
 		glCreateBuffers(1, &m_IndexBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_IndexBufferID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(size_t), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, count * (int)sizeof(int), indices, GL_STATIC_DRAW);
 
 	}
 
-	Ref<IndexBuffer> IndexBuffer::Create(int* indices, size_t count)
+	Ref<IndexBuffer> IndexBuffer::Create(int* indices, int count)
 	{
 		return Ref<IndexBuffer>(new IndexBuffer(indices, count));
 	}

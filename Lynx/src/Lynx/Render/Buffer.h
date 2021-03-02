@@ -71,6 +71,7 @@ namespace Lynx {
 		void Bind() const;
 		void Unbind() const;
 		void SetData(const void* data, size_t size);
+		void Test(const void* vertices, size_t size);
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }
@@ -83,15 +84,15 @@ namespace Lynx {
 
 	class IndexBuffer {
 	public:
-		static Ref<IndexBuffer> Create(int* indices, size_t count);
+		static Ref<IndexBuffer> Create(int* indices, int count);
 		~IndexBuffer();
 		void Bind() const;
 		void Unbind() const;
-		size_t GetCount() const { return m_Count; }
+		int GetCount() const { return m_Count; }
 	private:
-		IndexBuffer(int* indices, size_t count);
+		IndexBuffer(int* indices, int count);
 		uint32_t m_IndexBufferID;
-		size_t m_Count;
+		int m_Count;
 	};
 }
 

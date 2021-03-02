@@ -10,7 +10,7 @@ namespace Lynx {
 	struct VertexData {
 		glm::vec3 Pos;
 		glm::vec3 Color;
-		int ActiveSides;
+		glm::vec3 Normal;
 	};
 
 	class Chunk {
@@ -20,8 +20,9 @@ namespace Lynx {
 		Voxel::Type& GetVoxel(int x, int y, int z);
 
 		static int IndexLinear(int x, int y, int z);
+		static int VIndexLinear(int x, int y, int z);
 		static bool Inside(int x, int y, int z);
-		static const int SIZE = 16;
+		static const int SIZE = 3;
 
 		//Mesh data
 		void Update();
@@ -34,13 +35,13 @@ namespace Lynx {
 		//Mesh data
 		void CreateVoxelData();
 		int ActiveSidesOfVoxel(int x, int y, int z);
-		void AllActiveSides(std::vector<int>&);
-		int AdjacentChunkCheckN(int chunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
-		int AdjacentChunkCheckP(int chunkAxisPos, int worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
+		int AddVertex(const glm::vec3& pos, const glm::vec3& color, const glm::vec3& normal);
 		glm::vec3 m_Position{ 0.0f };
 		glm::ivec3 m_ChunkPosition{ 0 };
-		std::vector<VertexData> m_VoxelData;
+		std::vector<VertexData> m_VertexData;
 		Ref<VertexArray> m_VA = nullptr;
 		Ref<VertexBuffer> m_VB = nullptr;
+
+		int m_Count = 0;
 	};
 }

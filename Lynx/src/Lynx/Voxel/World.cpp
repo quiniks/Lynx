@@ -50,14 +50,41 @@ namespace Lynx {
 		glm::vec4 rayEye = glm::inverse(camera.GetProjection()) * glm::vec4(x, y, -1.0f, 1.0);
 		glm::vec3 rayWorld = (glm::inverse(camera.GetView()) * glm::vec4(rayEye.x, rayEye.y, -1.0, 0.0f));
 		rayWorld = glm::normalize(rayWorld);
+		////////////
 
+		std::vector<glm::ivec3> voxelList2;
+		VoxelRayData rayData2;
+		rayData2.origin = camera.GetPosition();
+		rayData2.direction = rayWorld;
+		rayData2.maxDistance = 50.0f;
+		rayData2.unitSize = Voxel::SIZE;
+		rayData2.offset = { 0.0f, 0.0f, 0.0f };// glm::vec3{ Voxel::SIZE / 2.0f };
+		VoxelRay::PosFromRay(rayData2, voxelList2);
+		for (auto i = voxelList2.begin(); i != voxelList2.end(); ++i) {
+			glm::ivec3 voxelPos2 = *i;
+			glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelPos2 / (float)Chunk::SIZE);
+			glm::ivec3 voxelPosChunkSpace = glm::mod((glm::vec3)voxelPos2, (float)Chunk::SIZE);
+			if (Inside(chunkPos.x, chunkPos.y, chunkPos.z)) {
+				Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+				Voxel::Type voxel = chunk.GetVoxel(voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
+				if (voxel != Voxel::Type::Empty) {
+					voxelPosOut = voxelPos2;
+					return true;
+				}
+			}
+		}
+		return false;
+
+
+		//////////
+		/*
 		std::vector<glm::ivec3> chunkList;
 		VoxelRayData rayData;
 		rayData.origin = camera.GetPosition();
 		rayData.direction = rayWorld;
 		rayData.maxDistance = 50.0f;
-		rayData.unitSize = 16 * Voxel::SIZE;
-		rayData.offset = glm::vec3{ Voxel::SIZE / 2.0f };
+		rayData.unitSize = Chunk::SIZE * Voxel::SIZE;
+		rayData.offset = { 0.0f, 0.0f, 0.0f };// glm::vec3{ Voxel::SIZE / 2.0f };
 		VoxelRay::PosFromRay(rayData, chunkList);
 
 		for (auto i = chunkList.begin(); i != chunkList.end(); ++i) {
@@ -66,7 +93,7 @@ namespace Lynx {
 				Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
 				std::vector<glm::ivec3> voxelList;
 				rayData.unitSize = Voxel::SIZE;
-				rayData.offset = glm::vec3{ Voxel::SIZE / 2.0f } - (glm::vec3)chunkPos * (float)Chunk::SIZE * Voxel::SIZE;
+				rayData.offset = -(glm::vec3)chunkPos * (float)Chunk::SIZE * Voxel::SIZE;// glm::vec3{ Voxel::SIZE / 2.0f } - (glm::vec3)chunkPos * (float)Chunk::SIZE * Voxel::SIZE;
 				VoxelRay::PosFromRay(rayData, voxelList);
 
 				for (auto i = voxelList.begin(); i != voxelList.end(); ++i) {
@@ -82,12 +109,15 @@ namespace Lynx {
 			}
 		}
 		return false;
+		*/
 	}
 
 	void World::VoxelSet(const glm::ivec3& voxelPos, Voxel::Type type)
 	{
 		glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelPos / (float)Chunk::SIZE);
+		LX_INFO("chunkPos: {0}, {1}, {2}", chunkPos.x, chunkPos.y, chunkPos.z);
 		glm::ivec3 voxelPosChunkSpace = glm::mod((glm::vec3)voxelPos, (float)Chunk::SIZE);
+		LX_INFO("voxelPosChunkSpace: {0}, {1}, {2}", voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
 		Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
 		Voxel::Type& voxel = chunk.GetVoxel(voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
 		voxel = type;
