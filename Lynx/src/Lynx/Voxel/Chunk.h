@@ -35,8 +35,8 @@ namespace Lynx {
 		void CreateVoxelData();
 		int ActiveSidesOfVoxel(int x, int y, int z);
 		void AllActiveSides(std::vector<int>&);
-		int AdjacentChunkCheckN(float ChunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
-		int AdjacentChunkCheckP(float chunkAxisPos, float worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
+		int AdjacentChunkCheckN(int chunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
+		int AdjacentChunkCheckP(int chunkAxisPos, int worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side);
 		glm::vec3 m_Position{ 0.0f };
 		glm::ivec3 m_ChunkPosition{ 0 };
 		std::vector<VertexData> m_VoxelData;

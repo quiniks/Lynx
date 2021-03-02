@@ -1,11 +1,12 @@
 #include "Lynxpch.h"
 #include "VoxelRay.h"
 
-void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, float maxDistance, std::vector<glm::ivec3>& positions)
+void Lynx::VoxelRay::PosFromRay(const VoxelRayData& rayData, std::vector<glm::ivec3>& positions)
 {
-	float voxelSize = 0.2f;
-	float offset = -5.0f;
-	origin = (origin + voxelSize / 2.0f - offset) * 1.0f/ voxelSize;
+
+	const glm::vec3 origin = (rayData.origin + rayData.offset) * 1.0f / rayData.unitSize;
+	const glm::vec3& direction = rayData.direction;
+	const float maxDistance = rayData.maxDistance;
 
 	glm::vec3 pos = glm::floor(origin);
 	glm::vec3 step = glm::sign(direction);
@@ -20,17 +21,17 @@ void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, fl
 
 	if (step.x != 0.0f) {
 		nonZeroDir.x = true;
-		tMax.x = VoxelRay::TAtBound(origin.x, direction.x);
+		tMax.x = TAtBound(origin.x, direction.x);
 		tDelta.x = step.x / direction.x;
 	}
 	if (step.y != 0.0f) {
 		nonZeroDir.y = true;
-		tMax.y = VoxelRay::TAtBound(origin.y, direction.y);
+		tMax.y = TAtBound(origin.y, direction.y);
 		tDelta.y = step.y / direction.y;
 	}
 	if (step.z != 0.0f) {
 		nonZeroDir.z = true;
-		tMax.z = VoxelRay::TAtBound(origin.z, direction.z);
+		tMax.z = TAtBound(origin.z, direction.z);
 		tDelta.z = step.z / direction.z;
 	}
 
@@ -38,7 +39,7 @@ void Lynx::VoxelRay::PosFromRay(glm::vec3 origin, const glm::vec3& direction, fl
 	glm::vec3 originPos = pos;
 
 	while (dist.x < maxDistance && dist.y < maxDistance && dist.z < maxDistance) {
-		
+
 		dist = glm::abs(pos - originPos);
 		positions.emplace_back(pos.x, pos.y, pos.z);
 

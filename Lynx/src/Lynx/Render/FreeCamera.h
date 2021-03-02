@@ -15,7 +15,7 @@ namespace Lynx {
 		glm::mat4 GetViewProjection() const { return m_ProjectionMatrix * m_ViewMatrix; }
 		void SetViewportSize(float width, float height);
 		void OnUpdate(TimeStep ts);
-		glm::vec3 GetPosition();
+		glm::vec3 GetPosition() const;
 
 		float m_PanSpeed = 0.0f;
 		float m_PanMaxSpeed = 25.0f;

@@ -92,14 +92,19 @@ namespace Lynx {
 	// IndexBuffer //////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 
-	IndexBuffer::IndexBuffer(uint32_t* indices, uint32_t count)
+	IndexBuffer::IndexBuffer(int* indices, size_t count)
 		: m_Count(count)
 	{
 		//LX_PROFILE_FUNCTION();
 		glCreateBuffers(1, &m_IndexBufferID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_IndexBufferID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, count * sizeof(size_t), indices, GL_STATIC_DRAW);
 
+	}
+
+	Ref<IndexBuffer> IndexBuffer::Create(int* indices, size_t count)
+	{
+		return Ref<IndexBuffer>(new IndexBuffer(indices, count));
 	}
 
 	IndexBuffer::~IndexBuffer()

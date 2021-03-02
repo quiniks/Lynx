@@ -83,14 +83,15 @@ namespace Lynx {
 
 	class IndexBuffer {
 	public:
-		IndexBuffer(uint32_t* indices, uint32_t count);
+		static Ref<IndexBuffer> Create(int* indices, size_t count);
 		~IndexBuffer();
 		void Bind() const;
 		void Unbind() const;
-		uint32_t GetCount() const { return m_Count; }
+		size_t GetCount() const { return m_Count; }
 	private:
+		IndexBuffer(int* indices, size_t count);
 		uint32_t m_IndexBufferID;
-		uint32_t m_Count;
+		size_t m_Count;
 	};
 }
 

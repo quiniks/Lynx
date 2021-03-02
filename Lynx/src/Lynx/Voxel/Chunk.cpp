@@ -19,6 +19,7 @@ namespace Lynx {
 			}
 		}
 	}
+
 	void Chunk::CreateMesh(float x, float y, float z)
 	{
 		m_Position = { x, y, z };
@@ -103,18 +104,17 @@ namespace Lynx {
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {
 				for (int z = 0; z < SIZE; z++) {
+
 					int& SidesThis = sides.at(IndexLinear(x, y, z));
 					//X
 					if (x > 0 && m_Voxels.at(IndexLinear(x - 1, y, z)) == Voxel::Type::Empty) {
 						SidesThis += Voxel::NX_SIDE;
 						sides.at(IndexLinear(x - 1, y, z)) += Voxel::PX_SIDE;
 					}
-					else if (x == 0) {
+					else if (x == 0)
 						SidesThis += AdjacentChunkCheckN(m_ChunkPosition.x, { -1, 0, 0 }, { x, y, z }, Voxel::NX_SIDE);// Voxel::NX_SIDE;
-					}
-					else if (x == SIZE - 1) {
+					else if (x == SIZE - 1)
 						SidesThis += AdjacentChunkCheckP(m_ChunkPosition.x, World::SIZE.x, { 1, 0, 0 }, { x, y, z }, Voxel::PX_SIDE);// Voxel::PX_SIDE;
-					}
 					//Y
 					if (y > 0 && m_Voxels.at(IndexLinear(x, y - 1, z)) == Voxel::Type::Empty) {
 						SidesThis += Voxel::NY_SIDE;
@@ -138,9 +138,9 @@ namespace Lynx {
 		}
 	}
 
-	int Chunk::AdjacentChunkCheckN(float ChunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
+	int Chunk::AdjacentChunkCheckN(int chunkAxisPos, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
 	{
-		if (ChunkAxisPos > 0) {
+		if (chunkAxisPos > 0) {
 			Chunk& AdjChunk = m_World.GetChunk(m_ChunkPosition.x + offset.x, m_ChunkPosition.y + offset.y, m_ChunkPosition.z + offset.z);
 			bool isAdjChunkVoxelEmpty = false;
 			if (offset.x != 0)
@@ -159,7 +159,7 @@ namespace Lynx {
 		return Voxel::NO_SIDES;
 	}
 
-	int Chunk::AdjacentChunkCheckP(float chunkAxisPos, float worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
+	int Chunk::AdjacentChunkCheckP(int chunkAxisPos, int worldAxisSize, const glm::ivec3& offset, const glm::ivec3& voxelPos, int side)
 	{
 		if (chunkAxisPos < worldAxisSize - 1) {
 			Chunk& AdjChunk = m_World.GetChunk(m_ChunkPosition.x + offset.x, m_ChunkPosition.y + offset.y, m_ChunkPosition.z + offset.z);
@@ -184,6 +184,7 @@ namespace Lynx {
 		std::vector<int> sides;
 		AllActiveSides(sides);
 
+		glm::vec3 color = (glm::vec3)m_ChunkPosition / (glm::vec3)m_World.SIZE + glm::vec3{ 0.8f, 0.2f, 0.3f };
 
 		m_VoxelData.reserve((uint32_t)pow(SIZE, 3));
 		for (int x = 0; x < SIZE; x++) {
@@ -193,8 +194,8 @@ namespace Lynx {
 					if (m_Voxels.at(index) != Voxel::Type::Empty) {
 						m_VoxelData.emplace_back(VertexData{ 
 							{ x * Voxel::SIZE + m_Position.x, y * Voxel::SIZE + m_Position.y, z * Voxel::SIZE + m_Position.z }, 
-							{ 0.8f, 0.2f, 0.3f },
-							sides.at(IndexLinear(x, y, z))/*ActiveSidesOfVoxel(x, y, z)*/
+							color,
+							ActiveSidesOfVoxel(x, y, z)/*sides.at(IndexLinear(x, y, z))*/
 						});
 					}
 				}

@@ -27,7 +27,7 @@ namespace Lynx {
 		m_Moving = false;
 	}
 
-	glm::vec3 FreeCamera::GetPosition()
+	glm::vec3 FreeCamera::GetPosition() const
 	{
 		return m_Position;
 	}
