@@ -26,4 +26,5 @@ private:
 
 	float m_TimeStepStat = 0.0f;
 	glm::ivec3 m_LookVoxel{ 0 };
+	bool m_RenderMode = false;
 };

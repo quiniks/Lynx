@@ -115,9 +115,9 @@ namespace Lynx {
 	void World::VoxelSet(const glm::ivec3& voxelPos, Voxel::Type type)
 	{
 		glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelPos / (float)Chunk::SIZE);
-		LX_INFO("chunkPos: {0}, {1}, {2}", chunkPos.x, chunkPos.y, chunkPos.z);
+		//LX_INFO("chunkPos: {0}, {1}, {2}", chunkPos.x, chunkPos.y, chunkPos.z);
 		glm::ivec3 voxelPosChunkSpace = glm::mod((glm::vec3)voxelPos, (float)Chunk::SIZE);
-		LX_INFO("voxelPosChunkSpace: {0}, {1}, {2}", voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
+		//LX_INFO("voxelPosChunkSpace: {0}, {1}, {2}", voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
 		Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
 		Voxel::Type& voxel = chunk.GetVoxel(voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
 		voxel = type;

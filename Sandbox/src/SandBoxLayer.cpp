@@ -6,6 +6,9 @@
 
 SandBoxLayer::SandBoxLayer()
 {
+	bool a = true;
+	bool b = true;
+	int t = a + b;
 	m_VoxelShader.Load("assets/shaders/voxelShaderAlt.glsl");
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
@@ -20,7 +23,7 @@ SandBoxLayer::SandBoxLayer()
 	m_ColorShader.SetFloat4("u_Tint", { 0.5f, 0.5f, 0.5f, 1.0f });
 	m_ColorShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
 
-	m_Grid.Init(0.2f, 5, {0.0f, -0.01f, 0.0f});
+	m_Grid.Init(0.2f, 5, {0.0f, 0.0f, 0.0f});
 
 	Lynx::App::Get().GetWindow().SetVSync(false);
 
@@ -44,7 +47,8 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	glm::mat4 vp = m_FreeCamera.GetViewProjection();
 	glm::mat4 mvp = m_FreeCamera.GetViewProjection() * m_Transform;
 
-	glClearColor(1.0f, 0.9f, 0.85f, 1.0f);
+	//glClearColor(1.0f, 0.9f, 0.85f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	
@@ -93,7 +97,7 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
 		glm::ivec3 voxelPos;
 		if (m_World.VoxelPick(m_FreeCamera, voxelPos)) {
-			LX_INFO("Click: {0}, {1}, {2}", voxelPos.x, voxelPos.y, voxelPos.z);
+			//LX_INFO("Click: {0}, {1}, {2}", voxelPos.x, voxelPos.y, voxelPos.z);
 			m_World.VoxelSet(voxelPos, Lynx::Voxel::Type::Empty);
 		}
 	}
@@ -103,7 +107,11 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 bool SandBoxLayer::OnKeyPressed(Lynx::KeyPressedEvent& event)
 {
 	if (event.GetKeyCode() == Lynx::Key::T) {
-		m_FreeCamera.SetPosition({ -1.0f, 2.0f, -1.0f });
+		m_RenderMode = !m_RenderMode;
+		if (m_RenderMode)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	return true;
 }
