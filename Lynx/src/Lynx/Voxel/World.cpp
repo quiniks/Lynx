@@ -8,6 +8,7 @@
 namespace Lynx {
 	World::World()
 	{
+
 		m_Chunks.reserve((size_t)SIZE.x * SIZE.y * SIZE.z);
 		for (int x = 0; x < SIZE.x; x++) {
 			for (int y = 0; y < SIZE.y; y++) {
@@ -16,14 +17,16 @@ namespace Lynx {
 				}
 			}
 		}
-
+		int memTotal = 0;
 		for (int x = 0; x < SIZE.x; x++) {
 			for (int y = 0; y < SIZE.y; y++) {
 				for (int z = 0; z < SIZE.z; z++) {
 					m_Chunks.at(IndexLinear(x, y, z)).CreateMesh(x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE);
+					memTotal += m_Chunks.at(IndexLinear(x, y, z)).m_MemSize;
 				}
 			}
 		}
+		LX_INFO("Size: {0}", memTotal);
 	}
 
 	void World::Render()
@@ -119,8 +122,7 @@ namespace Lynx {
 		glm::ivec3 voxelPosChunkSpace = glm::mod((glm::vec3)voxelPos, (float)Chunk::SIZE);
 		//LX_INFO("voxelPosChunkSpace: {0}, {1}, {2}", voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
 		Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
-		Voxel::Type& voxel = chunk.GetVoxel(voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z);
-		voxel = type;
+		chunk.SetVoxel(voxelPosChunkSpace.x, voxelPosChunkSpace.y, voxelPosChunkSpace.z, type);
 		chunk.Update();
 	}
 
@@ -139,6 +141,7 @@ namespace Lynx {
 			return false;
 		return true;
 	}
+
 	float World::TAtBound(float origin, float direction)
 	{
 		////Solve o+td=1 in each dimension

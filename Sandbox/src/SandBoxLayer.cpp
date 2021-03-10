@@ -25,7 +25,7 @@ SandBoxLayer::SandBoxLayer()
 
 	m_Grid.Init(0.2f, 5, {0.0f, 0.0f, 0.0f});
 
-	Lynx::App::Get().GetWindow().SetVSync(false);
+	//Lynx::App::Get().GetWindow().SetVSync(false);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//m_Chunk.CreateMesh(-5.0f, -5.0f, -5.0f);

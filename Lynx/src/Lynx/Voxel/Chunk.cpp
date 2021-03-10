@@ -35,8 +35,9 @@ namespace Lynx {
 		m_VA->AddVertexBuffer(m_VB);
 
 		CreateVoxelData();
-		//LX_INFO("init size: {0}", m_VertexData.size());
 		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
+
+		m_MemSize = m_VertexData.size() * sizeof(VertexData);
 	}
 
 	void Chunk::Update()
@@ -53,10 +54,58 @@ namespace Lynx {
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_VertexData.size());
 	}
 
-	Voxel::Type& Chunk::GetVoxel(int x, int y, int z) {
-		if (!Inside(x, y, z))
-			LX_CORE_ASSERT(false, "Voxel is not inside chunk");
-		return m_Voxels.at(IndexLinear(x, y, z));
+	Voxel::Type Chunk::GetVoxel(int x, int y, int z) {
+
+		glm::ivec3 voxelWorldPos = { m_ChunkPosition.x * SIZE + x, m_ChunkPosition.y * SIZE + y, m_ChunkPosition.z * SIZE + z };
+		glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelWorldPos / (float)Chunk::SIZE);
+		bool validChunk = m_World.Inside(chunkPos.x, chunkPos.y, chunkPos.z);
+		if (validChunk) {
+			glm::ivec3 voxelChunkPos = glm::mod((glm::vec3)voxelWorldPos, (float)Chunk::SIZE);
+			Voxel::Type type = m_World.GetChunk(chunkPos.x, chunkPos.y, chunkPos.z).m_Voxels.at(IndexLinear(voxelChunkPos));
+			return type;
+		}
+		else {
+			return Voxel::Type::Empty;
+		}
+	}
+
+	void Chunk::SetVoxel(int x, int y, int z, Voxel::Type type)
+	{
+		if (Inside(x, y, z))
+			m_Voxels.at(IndexLinear(x, y, z)) = type;
+
+		if (x == 0) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
+		}
+		else if (x == SIZE - 1) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
+		}
+
+		if (y == 0) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z).Update();
+		}
+		else if (y == SIZE - 1) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z).Update();
+		}
+
+		if (z == 0) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1).Update();
+		}
+		else if (z == SIZE - 1) {
+			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1);
+			if (validChunk)
+				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1).Update();
+		}
 	}
 
 	int Chunk::IndexLinear(int x, int y, int z)
@@ -89,31 +138,6 @@ namespace Lynx {
 		if (upper || lower)
 			return false;
 		return true;
-	}
-
-	int Chunk::ActiveSidesOfVoxel(int x, int y, int z)
-	{
-		int obscuredSides = Voxel::NO_SIDES;
-
-		if (x > 0 && m_Voxels.at(IndexLinear(x - 1, y, z)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::NX_SIDE;
-		}
-		if (x < SIZE - 1 && m_Voxels.at(IndexLinear(x + 1, y, z)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::PX_SIDE;
-		}
-		if (y > 0 && m_Voxels.at(IndexLinear(x, y - 1, z)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::NY_SIDE;
-		}
-		if (y < SIZE - 1 && m_Voxels.at(IndexLinear(x, y + 1, z)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::PY_SIDE;
-		}
-		if (z > 0 && m_Voxels.at(IndexLinear(x, y, z - 1)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::NZ_SIDE;
-		}
-		if (z < SIZE - 1 && m_Voxels.at(IndexLinear(x, y, z + 1)) != Voxel::Type::Empty) {
-			obscuredSides += Voxel::PZ_SIDE;
-		}
-		return Voxel::SIX_SIDES - obscuredSides;
 	}
 
 	int Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, const glm::vec3& normal, int ao)
@@ -190,7 +214,7 @@ namespace Lynx {
 					int voxelIndex = IndexLinear(x, y, z);
 					if (m_Voxels.at(voxelIndex) != Voxel::Type::Empty) {
 						
-						if (x == 0 || (x > 0 && m_Voxels.at(IndexLinear(x - 1, y, z)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x - 1, y, z) == Voxel::Type::Empty) {
 							glm::ivec3 vert[4] = {
 								{0, 0, 0},
 								{0, 1, 0},
@@ -206,7 +230,7 @@ namespace Lynx {
 							AddFace(vert, ao, { x, y, z }, { -1, 0, 0 }, color);
 						}
 
-						if (x == SIZE - 1 || (x < SIZE - 1 && m_Voxels.at(IndexLinear(x + 1, y, z)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x + 1, y, z) == Voxel::Type::Empty) {
 							glm::ivec3 vert[4] = {
 								{1, 1, 1},
 								{1, 1, 0},
@@ -222,7 +246,7 @@ namespace Lynx {
 							AddFace(vert, ao, { x, y, z }, { 1, 0, 0 }, color);
 						}
 
-						if (y == 0 || (y > 0 && m_Voxels.at(IndexLinear(x, y - 1, z)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x, y - 1, z) == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{1, 0, 1},
 								{1, 0, 0},
@@ -238,7 +262,7 @@ namespace Lynx {
 							AddFace(face, ao, { x, y, z }, { 0, -1, 0 }, color);
 						}
 						
-						if (y == SIZE - 1 || (y < SIZE - 1 && m_Voxels.at(IndexLinear(x, y + 1, z)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x, y + 1, z) == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{0, 1, 0},
 								{1, 1, 0},
@@ -254,7 +278,7 @@ namespace Lynx {
 							AddFace(face, ao, { x, y, z }, { 0, 1, 0 }, color);
 						}
 						
-						if (z == 0 || (z > 0 && m_Voxels.at(IndexLinear(x, y, z - 1)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x, y, z - 1) == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{0, 0, 0},
 								{1, 0, 0},
@@ -270,7 +294,7 @@ namespace Lynx {
 							AddFace(face, ao, { x, y, z }, { 0, 0, -1 }, color);
 						}
 
-						if (z == SIZE - 1 || (z < SIZE - 1 && m_Voxels.at(IndexLinear(x, y, z + 1)) == Voxel::Type::Empty)) {
+						if (GetVoxel(x, y, z + 1) == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{1, 1, 1},
 								{1, 0, 1},
@@ -289,6 +313,5 @@ namespace Lynx {
 				}
 			}
 		}
-
 	}
 }
