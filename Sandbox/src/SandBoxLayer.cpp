@@ -6,9 +6,8 @@
 
 SandBoxLayer::SandBoxLayer()
 {
-	bool a = true;
-	bool b = true;
-	int t = a + b;
+	Lynx::Window& window = Lynx::App::Get().GetWindow();
+	m_FreeCamera.Init(45.0f, window.GetFrameWidth(), window.GetFrameHeight(), 0.1f, 1000.0f);
 	m_VoxelShader.Load("assets/shaders/voxelShaderAlt.glsl");
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
@@ -24,6 +23,7 @@ SandBoxLayer::SandBoxLayer()
 	m_ColorShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
 
 	m_Grid.Init(0.2f, 5, {0.0f, 0.0f, 0.0f});
+	m_World.Init();
 
 	//Lynx::App::Get().GetWindow().SetVSync(false);
 
@@ -47,8 +47,7 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	glm::mat4 vp = m_FreeCamera.GetViewProjection();
 	glm::mat4 mvp = m_FreeCamera.GetViewProjection() * m_Transform;
 
-	//glClearColor(1.0f, 0.9f, 0.85f, 1.0f);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 0.9f, 0.85f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	
@@ -68,11 +67,10 @@ void SandBoxLayer::OnImGuiRender()
 	ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoCollapse);
 	ImGui::Text("Frame time step: %.6fs", m_TimeStepStat);
 	ImGui::Text("FPS: %.0f", 1.0f / m_TimeStepStat);
-	ImGui::Text("Camera speed: %.2f", m_FreeCamera.m_PanSpeed);
+	ImGui::Text("Camera speed: %.2f", m_FreeCamera.GetSpeed());
 	ImGui::Text("Camera pos: [%.2f, %.2f, %.2f]", m_FreeCamera.GetPosition().x, m_FreeCamera.GetPosition().y, m_FreeCamera.GetPosition().z);
 	glm::uvec3 cameraPosVoxelSpace = glm::round(m_FreeCamera.GetPosition() * 2.0f);
 	ImGui::Text("Camera voxel pos: [%i, %i, %i]", cameraPosVoxelSpace.x, cameraPosVoxelSpace.y, cameraPosVoxelSpace.z);
-	//ImGui::Text("Clicked voxel pos: [%i, %i, %i]", m_LookVoxel.x, m_LookVoxel.y, m_LookVoxel.z);
 	ImGui::End();
 }
 
@@ -97,7 +95,6 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
 		glm::ivec3 voxelPos;
 		if (m_World.VoxelPick(m_FreeCamera, voxelPos)) {
-			//LX_INFO("Click: {0}, {1}, {2}", voxelPos.x, voxelPos.y, voxelPos.z);
 			m_World.VoxelSet(voxelPos, Lynx::Voxel::Type::Empty);
 		}
 	}

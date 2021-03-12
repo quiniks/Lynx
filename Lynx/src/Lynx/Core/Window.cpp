@@ -62,6 +62,8 @@ namespace Lynx {
 		++s_GLFWWindowCount;
 		LX_CORE_ASSERT(m_Window, "Could not create window");
 
+		glfwGetFramebufferSize(m_Window, &m_Data.FrameWidth, &m_Data.FrameHeight);
+
 		glfwMakeContextCurrent(m_Window);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		LX_CORE_ASSERT(status, "Failed to initialise Glad");
@@ -86,6 +88,9 @@ namespace Lynx {
 
 		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			data.FrameWidth = width;
+			data.FrameHeight = height;
+
 			WindowFrameResizeEvent event(width, height);
 			data.EventCallback(event);
 		});

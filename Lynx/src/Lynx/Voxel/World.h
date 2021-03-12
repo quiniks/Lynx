@@ -6,6 +6,7 @@ namespace Lynx {
 	class World {
 	public:
 		World();
+		void Init();
 		void Render();
 		Chunk& GetChunk(int x, int y, int z);
 		bool VoxelPick(const FreeCamera& camera, glm::ivec3& voxelPosOut);
@@ -16,6 +17,5 @@ namespace Lynx {
 		static constexpr glm::ivec3 SIZE{ 10, 2, 10 };
 	private:
 		std::vector<Chunk> m_Chunks;
-		static float TAtBound(float origin, float direction);
 	};
 }

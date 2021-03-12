@@ -82,13 +82,13 @@ namespace Lynx {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void VertexBuffer::SetData(const void* data, size_t size)
+	void VertexBuffer::SetSubData(const void* data, size_t size)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
-	void VertexBuffer::Test(const void* vertices, size_t size)
+	void VertexBuffer::SetData(const void* vertices, size_t size)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

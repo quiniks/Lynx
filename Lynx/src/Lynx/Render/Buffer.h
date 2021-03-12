@@ -70,8 +70,8 @@ namespace Lynx {
 		~VertexBuffer();
 		void Bind() const;
 		void Unbind() const;
-		void SetData(const void* data, size_t size);
-		void Test(const void* vertices, size_t size);
+		void SetSubData(const void* data, size_t size);
+		void SetData(const void* vertices, size_t size);
 
 		const BufferLayout& GetLayout() const { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) { m_Layout = layout; }

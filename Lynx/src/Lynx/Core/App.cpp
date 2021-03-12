@@ -11,7 +11,7 @@ namespace Lynx {
 		LX_CORE_ASSERT(!s_Instance, "Applcation already exists");
 		LX_CORE_INFO("App created");
 		s_Instance = this;
-		m_Window = Window::Create(WindowProps());
+		m_Window = Window::Create({ "LYNX", 1080, 720 });
 		m_Window->SetEventCallback(BIND_EVENT_FN(App::OnEvent));
 		m_ImGuiHelper.Init(m_Window->GetGLFWWindow());
 	}

@@ -8,9 +8,14 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace Lynx {
-	FreeCamera::FreeCamera(float fov, float aspectRatio, float nearClip, float farClip)
-		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
+	void FreeCamera::Init(float fov, int width, int height, float nearClip, float farClip)
 	{
+		m_FOV = fov;
+		m_AspectRatio = (float)width / (float)height;
+		m_ViewportWidth = (float)width;
+		m_ViewportHeight = (float)height;
+		m_NearClip = nearClip;
+		m_FarClip = farClip;
 		m_Yaw = glm::radians(135.0f);
 		UpdateLook();
 		UpdateView();
@@ -52,7 +57,11 @@ namespace Lynx {
 
 	void FreeCamera::UpdateProjection()
 	{
+
 		m_ProjectionMatrix = glm::perspective(m_FOV, m_AspectRatio, m_NearClip, m_FarClip);
+
+		//m_ProjectionMatrix = glm::ortho(-m_ViewportWidth / 2.0f * m_Zoom, m_ViewportWidth / 2.0f * m_Zoom, -m_ViewportHeight / 2.0f * m_Zoom, m_ViewportHeight / 2.0f * m_Zoom, -m_FarClip, m_FarClip);
+
 	}
 
 	void FreeCamera::UpdateLook()

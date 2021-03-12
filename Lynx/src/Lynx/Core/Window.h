@@ -25,6 +25,8 @@ namespace Lynx {
 
 		unsigned int GetWidth() const { return m_Data.Width; }
 		unsigned int GetHeight() const { return m_Data.Height; }
+		unsigned int GetFrameWidth() const { return m_Data.FrameWidth; }
+		unsigned int GetFrameHeight() const { return m_Data.FrameHeight; }
 
 		void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled);
@@ -42,6 +44,8 @@ namespace Lynx {
 			std::string Title = "";
 			unsigned int Width = 0;
 			unsigned int Height = 0;
+			int FrameWidth = 0;
+			int FrameHeight = 0;
 			bool VSync = true;
 			EventCallbackFn EventCallback = nullptr;
 		} m_Data;
