@@ -10,7 +10,7 @@ namespace Lynx {
 	struct VertexData {
 		glm::vec3 Pos;
 		glm::vec3 Color;
-		glm::vec3 Normal;
+		int Side;
 		int AO;
 	};
 
@@ -41,7 +41,7 @@ namespace Lynx {
 
 		//Mesh data
 		void CreateVoxelData();
-		int AddVertex(const glm::vec3& pos, const glm::vec3& color, const glm::vec3& normal, int ao);
+		int AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao);
 		glm::vec3 m_Position{ 0.0f };
 		glm::ivec3 m_ChunkPosition{ 0 };
 

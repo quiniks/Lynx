@@ -13,7 +13,7 @@ namespace Lynx {
 
 		static int IndexLinear(int x, int y, int z);
 		static bool Inside(int x, int y, int z);
-		static constexpr glm::ivec3 SIZE{ 1, 1, 1 };
+		static constexpr glm::ivec3 SIZE{ 10, 2, 10 };
 	private:
 		std::vector<Chunk> m_Chunks;
 		static float TAtBound(float origin, float direction);

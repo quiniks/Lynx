@@ -3,7 +3,7 @@
 
 in vec3 a_Position;
 in vec3 a_Color;
-in vec3 a_Normal;
+in int a_Side;
 in int a_AO;
 out vec3 v_Color;
 out vec3 v_Normal;
@@ -16,14 +16,27 @@ void main()
 {
 	if (a_AO == 0)
 		v_AO = vec3(1.0, 1.0, 1.0);
-	if (a_AO == 1)
+	else if (a_AO == 1)
 		v_AO = vec3(0.9, 0.9, 0.9);
-	if (a_AO == 2)
+	else if (a_AO == 2)
 		v_AO = vec3(0.7, 0.7, 0.7);
-	if (a_AO == 5)
+	else if (a_AO == 5)
 		v_AO = vec3(0.5, 0.5, 0.5);
+
+	if (a_Side == 2)
+		v_Normal = vec3(1.0, 0.0, 0.0);
+	else if (a_Side == 1)
+		v_Normal = vec3(-1.0, 0.0, 0.0);
+	else if (a_Side == 8)
+		v_Normal = vec3(0.0, 1.0, 0.0);
+	else if (a_Side == 4)
+		v_Normal = vec3(0.0, -1.0, 0.0);
+	else if (a_Side == 32)
+		v_Normal = vec3(0.0, 0.0, 1.0);
+	else if (a_Side == 16)
+		v_Normal = vec3(0.0, 0.0, -1.0);
+
 	v_Color = a_Color;
-	v_Normal = a_Normal;
 	v_FragPosition = a_Position;
 	gl_Position = u_MVP * vec4(a_Position, 1.0);
 }

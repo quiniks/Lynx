@@ -26,7 +26,7 @@ namespace Lynx {
 				}
 			}
 		}
-		LX_INFO("Size: {0}", memTotal);
+		LX_INFO("Size: {0} bytes", memTotal);
 	}
 
 	void World::Render()

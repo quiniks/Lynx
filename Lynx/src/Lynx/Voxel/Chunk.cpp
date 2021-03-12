@@ -29,14 +29,13 @@ namespace Lynx {
 		m_VB->SetLayout({
 			{ Lynx::ShaderDataType::Float3, "a_Position" },
 			{ Lynx::ShaderDataType::Float3, "a_Color" },
-			{ Lynx::ShaderDataType::Float3, "a_Normal" },
+			{ Lynx::ShaderDataType::Int, "a_Side" },
 			{ Lynx::ShaderDataType::Int, "a_AO" }
 			});
 		m_VA->AddVertexBuffer(m_VB);
 
 		CreateVoxelData();
 		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
-
 		m_MemSize = m_VertexData.size() * sizeof(VertexData);
 	}
 
@@ -44,7 +43,6 @@ namespace Lynx {
 	{
 		m_VertexData.clear();
 		CreateVoxelData();
-		//m_VB->Test(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 	}
 
@@ -140,10 +138,10 @@ namespace Lynx {
 		return true;
 	}
 
-	int Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, const glm::vec3& normal, int ao)
+	int Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao)
 	{
 		glm::vec3 worldPos = (pos * Voxel::SIZE + m_Position);
-		m_VertexData.emplace_back(VertexData{ worldPos, color, normal, ao});
+		m_VertexData.emplace_back(VertexData{ worldPos, color, side, ao});
 		//LX_INFO("worldPos: {0}, {1}, {2}", worldPos.x, worldPos.y, worldPos.z);
 		return 0;//(int)m_VertexData.size() - 1;
 	}
@@ -183,29 +181,42 @@ namespace Lynx {
 	
 	void Chunk::AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, const glm::vec3& color)
 	{
+		int side = Voxel::NO_SIDES;
+		if (d.x == 1)
+			side = Voxel::PX_SIDE;
+		else if (d.x == -1)
+			side = Voxel::NX_SIDE;
+		if (d.y == 1)
+			side = Voxel::PY_SIDE;
+		else if (d.y == -1)
+			side = Voxel::NY_SIDE;
+		if (d.z == 1)
+			side = Voxel::PZ_SIDE;
+		else if (d.z == -1)
+			side = Voxel::NZ_SIDE;
+
 		if (ao[0] + ao[3] > ao[2] + ao[1]) {
-			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, { d.x, d.y, d.z }, ao[0]);
-			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, { d.x, d.y, d.z }, ao[2]);
-			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, { d.x, d.y, d.z }, ao[1]);
+			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, side, ao[0]);
+			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, side, ao[2]);
+			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, side, ao[1]);
 
-			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, { d.x, d.y, d.z }, ao[1]);
-			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, { d.x, d.y, d.z }, ao[2]);
-			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, { d.x, d.y, d.z }, ao[3]);
-		}
-		else {
-			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, { d.x, d.y, d.z }, ao[3]);
-			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, { d.x, d.y, d.z }, ao[0]);
-			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, { d.x, d.y, d.z }, ao[2]);
-
-			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, { d.x, d.y, d.z }, ao[3]);
-			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, { d.x, d.y, d.z }, ao[1]);
-			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, { d.x, d.y, d.z }, ao[0]);
+			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, side, ao[1]);
+			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, side, ao[2]);
+			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, side, ao[3]);
+		}																						  
+		else {																					  
+			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, side, ao[3]);
+			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, side, ao[0]);
+			AddVertex({ vertices[2].x + p.x , vertices[2].y + p.y , vertices[2].z + p.z }, color, side, ao[2]);
+																								  
+			AddVertex({ vertices[3].x + p.x , vertices[3].y + p.y , vertices[3].z + p.z }, color, side, ao[3]);
+			AddVertex({ vertices[1].x + p.x , vertices[1].y + p.y , vertices[1].z + p.z }, color, side, ao[1]);
+			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, side, ao[0]);
 		}
 	}
 
 	void Chunk::CreateVoxelData() {
-		m_VertexData.reserve((uint32_t)(pow(SIZE, 3) * 8));
-
+		m_VertexData.reserve(36 * pow(SIZE, 3));
 		glm::vec3 color = { 1.0f, 1.0f, 1.0f };// (glm::vec3)m_ChunkPosition / (glm::vec3)m_World.SIZE + glm::vec3{ 0.8f, 0.2f, 0.3f };
 
 		for (int x = 0; x < SIZE; x++) {
