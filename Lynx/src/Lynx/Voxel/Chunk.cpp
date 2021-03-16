@@ -7,6 +7,7 @@
 namespace Lynx {
 	Chunk::Chunk(World& world, int x, int y, int z) : m_World(world)
 	{
+		glm::vec3
 		m_ChunkPosition = { x, y, z };
 
 		m_Voxels.reserve((uint32_t)pow(SIZE, 3));
@@ -17,17 +18,15 @@ namespace Lynx {
 				}
 			}
 		}
-		m_Voxels.shrink_to_fit();
 	}
 
 	void Chunk::CreateMesh(float x, float y, float z)
 	{
 		m_Position = { x, y, z };
 
-		m_VA = VertexArray::Create();
-
 		CreateVoxelData();
 
+		m_VA = VertexArray::Create();
 		m_VB = VertexBuffer::Create(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 		m_VB->SetLayout({
 			{ Lynx::ShaderDataType::Float3, "a_Position" },
@@ -145,6 +144,21 @@ namespace Lynx {
 
 	int Chunk::VertexAO(const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2)
 	{
+		bool adjA2 = false, adjB2 = false, adjC2 = false;
+		glm::ivec3 a = p + d1;
+		Voxel::Type typeA2 = GetVoxel(a.x, a.y, a.z);
+		if (typeA2 != Voxel::Type::Empty)
+			adjA2 = true;
+		glm::ivec3 b = p + d2;
+		Voxel::Type typeB2 = GetVoxel(b.x, b.y, b.z);
+		if (typeB2 != Voxel::Type::Empty)
+			adjB2 = true;
+		glm::ivec3 c = p + d1 + d2;
+		Voxel::Type typeC2 = GetVoxel(c.x, c.y, c.z);
+		if (typeC2 != Voxel::Type::Empty)
+			adjC2 = true;
+
+		/*
 		bool insideA = Inside(p + d1);
 		bool insideB = Inside(p + d2);
 		bool insideC = Inside(p + d1 + d2);
@@ -170,10 +184,11 @@ namespace Lynx {
 			if (typeC != Voxel::Type::Empty)
 				adjC = true;
 		}
+		*/
 
-		if (adjA && adjB)
+		if (adjA2 && adjB2)
 			return 5;
-		return adjA + adjB + adjC;
+		return adjA2 + adjB2 + adjC2;
 	}
 	
 	void Chunk::AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, const glm::vec3& color)
@@ -215,7 +230,7 @@ namespace Lynx {
 	void Chunk::CreateVoxelData() {
 		//m_VertexData.reserve(36 * pow(SIZE, 3));
 		m_VertexData.clear();
-		glm::vec3 color = glm::vec3{ 0.16078f,  0.19608f,  0.25490f, };
+		glm::vec3 color = glm::vec3{ 1.0f,  1.0f,  1.0f }; //glm::vec3{ 0.16078f,  0.19608f,  0.25490f };
 
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {

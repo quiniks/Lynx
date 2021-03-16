@@ -47,7 +47,5 @@ namespace Lynx {
 		std::vector<VertexData> m_VertexData;
 		Ref<VertexArray> m_VA = nullptr;
 		Ref<VertexBuffer> m_VB = nullptr;
-
-		int m_Count = 0;
 	};
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Lynx/Utility/BitMask.h"
+#include "Lynx/Detail/glm.h"
 
 namespace Lynx {
 	namespace Voxel {
@@ -18,4 +19,18 @@ namespace Lynx {
 		constexpr int PZ_SIDE = BIT(5);
 		constexpr int NZ_SIDE = BIT(4);
 	}
+
+	class Voxel2 {
+	public:
+		void SetColor(const glm::vec4& color) {
+			m_Color = glm::packUnorm3x10_1x2(color);
+		};
+		uint32_t GetColor() {
+			return m_Color;
+		}
+	public:
+		Voxel::Type m_Type = Voxel::Type::Empty;
+	private:
+		uint32_t m_Color = 0;
+	};
 }
