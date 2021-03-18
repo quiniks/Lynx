@@ -16,6 +16,7 @@ namespace Lynx {
 		case ShaderDataType::Int3:		return GL_INT;
 		case ShaderDataType::Int4:		return GL_INT;
 		case ShaderDataType::PackedInt:	return GL_UNSIGNED_INT_2_10_10_10_REV;
+		case ShaderDataType::UInt:		return GL_UNSIGNED_INT;
 		case ShaderDataType::Bool:		return GL_BOOL;
 		}
 		LX_CORE_ASSERT(false, "Unkown ShaderDataType");
@@ -88,6 +89,7 @@ namespace Lynx {
 			case ShaderDataType::Int2:
 			case ShaderDataType::Int3:
 			case ShaderDataType::Int4:
+			case ShaderDataType::UInt:
 			case ShaderDataType::Bool:
 			{
 				glEnableVertexAttribArray(m_VertexBufferIndex);

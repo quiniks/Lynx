@@ -18,6 +18,7 @@ namespace Lynx {
 		case ShaderDataType::Int3:		return 3;
 		case ShaderDataType::Int4:		return 4;
 		case ShaderDataType::PackedInt:	return 4;
+		case ShaderDataType::UInt:		return 1;
 		case ShaderDataType::Bool:		return 1;
 		}
 		return 0;

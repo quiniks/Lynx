@@ -9,9 +9,12 @@ namespace Lynx {
 
 	struct VertexData {
 		glm::vec3 Pos;
-		glm::vec3 Color;
-		int Side;
-		int AO;
+		uint32_t Color;
+		uint8_t SideAndAO;
+
+		//glm::vec3 Color;
+		//int Side;
+		//int AO;
 	};
 
 	class Chunk {

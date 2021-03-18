@@ -1,7 +1,7 @@
 #pragma once
 namespace Lynx {
 	enum class ShaderDataType {
-		None = 0, Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, PackedInt, Bool
+		None = 0, Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, PackedInt, UInt, Bool
 	};
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type) {
@@ -17,6 +17,7 @@ namespace Lynx {
 		case ShaderDataType::Int3:			return 4 * 3;
 		case ShaderDataType::Int4:			return 4 * 4;
 		case ShaderDataType::PackedInt:		return 4;
+		case ShaderDataType::UInt:			return 4;
 		case ShaderDataType::Bool:			return 1;
 		}
 		LX_CORE_ASSERT(false, "Unkown ShaderDataType");

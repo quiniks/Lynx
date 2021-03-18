@@ -3,8 +3,9 @@
 
 in vec3 a_Position;
 in vec3 a_Color;
-in int a_Side;
-in int a_AO;
+in uint a_SideAndAO;
+//in int a_Side;
+//in int a_AO;
 out vec3 v_Color;
 out vec3 v_Normal;
 out vec3 v_AO;
@@ -14,26 +15,28 @@ uniform mat4 u_MVP;
 
 void main()
 {
-	if (a_AO == 0)
+	uint Side = (a_SideAndAO & 0xF0) >> 4;
+	uint AO = a_SideAndAO & 0x0F;
+	if (AO == 0)
 		v_AO = vec3(1.0, 1.0, 1.0);
-	else if (a_AO == 1)
+	else if (AO == 1)
 		v_AO = vec3(0.9, 0.9, 0.9);
-	else if (a_AO == 2)
+	else if (AO == 2)
 		v_AO = vec3(0.7, 0.7, 0.7);
-	else if (a_AO == 5)
+	else if (AO == 5)
 		v_AO = vec3(0.5, 0.5, 0.5);
 
-	if (a_Side == 2)
+	if (Side == 0)
 		v_Normal = vec3(1.0, 0.0, 0.0);
-	else if (a_Side == 1)
+	else if (Side == 1)
 		v_Normal = vec3(-1.0, 0.0, 0.0);
-	else if (a_Side == 8)
+	else if (Side == 2)
 		v_Normal = vec3(0.0, 1.0, 0.0);
-	else if (a_Side == 4)
+	else if (Side == 3)
 		v_Normal = vec3(0.0, -1.0, 0.0);
-	else if (a_Side == 32)
+	else if (Side == 4)
 		v_Normal = vec3(0.0, 0.0, 1.0);
-	else if (a_Side == 16)
+	else if (Side == 5)
 		v_Normal = vec3(0.0, 0.0, -1.0);
 
 	v_Color = a_Color;

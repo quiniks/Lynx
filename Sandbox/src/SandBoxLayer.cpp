@@ -3,21 +3,9 @@
 #include "Lynx/Detail/imgui.h"
 #include "Lynx/Voxel/Voxel.h"
 #include <glad/glad.h>
-#include <bitset>
-
-#include "Lynx/Utility/Packing.h"
 
 SandBoxLayer::SandBoxLayer()
 {
-	uint8_t packed2x4;
-	packed2x4 = 5 << 4 | 3;
-	uint8_t test2 = Lynx::pack2x4(5, 3);
-	uint8_t a = test2 >> 4;
-	uint8_t b = test2 & 0x0F;
-	std::bitset<8> bit8t{ test2 };
-	std::bitset<8> bit8a{ a };
-	std::bitset<8> bit8b{ b };
-
 	Lynx::Voxel2 test;
 	test.SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
 	uint32_t color = test.GetColor();

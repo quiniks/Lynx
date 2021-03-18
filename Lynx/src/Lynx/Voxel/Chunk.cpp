@@ -2,12 +2,12 @@
 #include "Chunk.h"
 #include "World.h"
 #include "Lynx/Utility/BitMask.h"
+#include "Lynx/Utility/Packing.h"
 #include "glad/glad.h"
 
 namespace Lynx {
 	Chunk::Chunk(World& world, int x, int y, int z) : m_World(world)
 	{
-		glm::vec3
 		m_ChunkPosition = { x, y, z };
 
 		m_Voxels.reserve((uint32_t)pow(SIZE, 3));
@@ -30,9 +30,8 @@ namespace Lynx {
 		m_VB = VertexBuffer::Create(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 		m_VB->SetLayout({
 			{ Lynx::ShaderDataType::Float3, "a_Position" },
-			{ Lynx::ShaderDataType::Float3, "a_Color" },
-			{ Lynx::ShaderDataType::Int, "a_Side" },
-			{ Lynx::ShaderDataType::Int, "a_AO" }
+			{ Lynx::ShaderDataType::PackedInt, "a_Color" },
+			{ Lynx::ShaderDataType::UInt, "a_SideAndAO" }
 			});
 		m_VA->AddVertexBuffer(m_VB);
 	}
@@ -50,13 +49,13 @@ namespace Lynx {
 	}
 
 	Voxel::Type Chunk::GetVoxel(int x, int y, int z) {
-		glm::ivec3 voxelWorldPos = { m_ChunkPosition.x * SIZE + x, m_ChunkPosition.y * SIZE + y, m_ChunkPosition.z * SIZE + z };
-		glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelWorldPos / (float)Chunk::SIZE);
+		glm::vec3 voxelWorldPos = { m_ChunkPosition.x * SIZE + x, m_ChunkPosition.y * SIZE + y, m_ChunkPosition.z * SIZE + z };
+		glm::ivec3 chunkPos = glm::floor(voxelWorldPos / (float)Chunk::SIZE);
 		bool validChunk = m_World.Inside(chunkPos.x, chunkPos.y, chunkPos.z);
 		if (validChunk) {
-			int vcpX = voxelWorldPos.x % Chunk::SIZE;
-			int vcpY = voxelWorldPos.y % Chunk::SIZE;
-			int vcpZ = voxelWorldPos.z % Chunk::SIZE;
+			int vcpX = (int)voxelWorldPos.x % Chunk::SIZE;
+			int vcpY = (int)voxelWorldPos.y % Chunk::SIZE;
+			int vcpZ = (int)voxelWorldPos.z % Chunk::SIZE;
 			Voxel::Type type = m_World.GetChunk(chunkPos.x, chunkPos.y, chunkPos.z).m_Voxels.at(IndexLinear(vcpX, vcpY, vcpZ));
 			return type;
 		}
@@ -136,12 +135,6 @@ namespace Lynx {
 		return true;
 	}
 
-	void Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao)
-	{
-		glm::vec3 worldPos = (pos * Voxel::SIZE + m_Position);
-		m_VertexData.emplace_back(VertexData{ worldPos, color, side, ao});
-	}
-
 	int Chunk::VertexAO(const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2)
 	{
 		bool adjA2 = false, adjB2 = false, adjC2 = false;
@@ -158,54 +151,33 @@ namespace Lynx {
 		if (typeC2 != Voxel::Type::Empty)
 			adjC2 = true;
 
-		/*
-		bool insideA = Inside(p + d1);
-		bool insideB = Inside(p + d2);
-		bool insideC = Inside(p + d1 + d2);
-		int indexA = IndexLinear(p + d1);
-		int indexB = IndexLinear(p + d2);
-		int indexC = IndexLinear(p + d1 + d2);
-		bool adjA = false, adjB = false, adjC = false;
-
-		if (insideA) {
-			Voxel::Type typeA = m_Voxels.at(indexA);
-			if (typeA != Voxel::Type::Empty)
-				adjA = true;
-		}
-
-		if (insideB) {
-			Voxel::Type typeB = m_Voxels.at(indexB);
-			if (typeB != Voxel::Type::Empty)
-				adjB = true;
-		}
-
-		if (insideC) {
-			Voxel::Type typeC = m_Voxels.at(indexC);
-			if (typeC != Voxel::Type::Empty)
-				adjC = true;
-		}
-		*/
-
 		if (adjA2 && adjB2)
 			return 5;
 		return adjA2 + adjB2 + adjC2;
 	}
+
+	void Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao)
+	{
+		glm::vec3 worldPos = (pos * Voxel::SIZE + m_Position);
+		
+		m_VertexData.emplace_back(VertexData{ worldPos, glm::packU3x10_1x2({color, 1.0f}), pack2x4(side, ao) });
+	}
 	
 	void Chunk::AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, const glm::vec3& color)
 	{
-		int side = Voxel::NO_SIDES;
+		int side = 0;
 		if (d.x == 1)
-			side = Voxel::PX_SIDE;
+			side = 0;
 		else if (d.x == -1)
-			side = Voxel::NX_SIDE;
+			side = 1;
 		if (d.y == 1)
-			side = Voxel::PY_SIDE;
+			side = 2;
 		else if (d.y == -1)
-			side = Voxel::NY_SIDE;
+			side = 3;
 		if (d.z == 1)
-			side = Voxel::PZ_SIDE;
+			side = 4;
 		else if (d.z == -1)
-			side = Voxel::NZ_SIDE;
+			side = 5;
 
 		if (ao[0] + ao[3] > ao[2] + ao[1]) {
 			AddVertex({ vertices[0].x + p.x , vertices[0].y + p.y , vertices[0].z + p.z }, color, side, ao[0]);
