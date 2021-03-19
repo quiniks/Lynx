@@ -2,10 +2,12 @@
 #include "Lynx/Detail/glm.h"
 #include "Lynx/Detail/imgui.h"
 #include "Lynx/Voxel/Voxel.h"
+#include "Lynx/Voxel/Importer.h"
 #include <glad/glad.h>
 
 SandBoxLayer::SandBoxLayer()
 {
+	Lynx::XRAW d = Lynx::Importer::XRawImport("assets/test/sphere.xraw");
 	Lynx::Voxel2 test;
 	test.SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
 	uint32_t color = test.GetColor();

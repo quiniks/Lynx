@@ -12,7 +12,7 @@ void Lynx::VoxelRay::PosFromRay(const VoxelRayData& rayData, std::vector<glm::iv
 	glm::vec3 step = glm::sign(direction);
 
 	if (step.x == 0.0f && step.y == 0.0f && step.z == 0.0f)
-		LX_CORE_ASSERT(true, "Cannot cast ray with direction of { 0, 0, 0 }");
+		LX_CORE_ASSERT(false, "Cannot cast ray with direction of { 0, 0, 0 }");
 
 	glm::vec3 tMax{ 0.0f };
 	glm::vec3 tDelta{ 0.0f };

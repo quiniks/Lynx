@@ -6,6 +6,7 @@ includeDir["glad"] = "Lynx/vendor/GLAD/include"
 includeDir["glm"] = "Lynx/vendor/glm"
 includeDir["stb_image"] = "Lynx/vendor/stb_image"
 includeDir["imgui"] = "Lynx/vendor/imgui"
+includeDir["ogt_vox"] = "Lynx/vendor/ogt_vox"
 
 workspace "Lynx"
     architecture "x64"
@@ -47,7 +48,8 @@ project "Lynx"
         "%{includeDir.glad}",
         "%{includeDir.glm}",
         "%{includeDir.stb_image}",
-        "%{includeDir.imgui}"
+        "%{includeDir.imgui}",
+        "%{includeDir.ogt_vox}"
     }
 
     links {
