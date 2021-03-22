@@ -3,6 +3,7 @@
 #include "Lynx/Voxel/Voxel.h"
 #include "Lynx/Events/Input.h"
 #include "Lynx/Voxel/VoxelRay.h"
+#include "Lynx/Voxel/Importer.h"
 #include <glad/glad.h>
 
 namespace Lynx {
@@ -12,6 +13,7 @@ namespace Lynx {
 
 	void World::Init()
 	{
+		/*
 		m_Chunks.reserve((size_t)SIZE.x * SIZE.y * SIZE.z);
 		for (int x = 0; x < SIZE.x; x++) {
 			for (int y = 0; y < SIZE.y; y++) {
@@ -28,6 +30,7 @@ namespace Lynx {
 				}
 			}
 		}
+		*/
 	}
 
 	void World::Render()
@@ -73,8 +76,8 @@ namespace Lynx {
 			int vcpZ = voxelPos2.z % Chunk::SIZE;
 			if (Inside(chunkPos.x, chunkPos.y, chunkPos.z)) {
 				Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
-				Voxel::Type voxel = chunk.GetVoxel(vcpX, vcpY, vcpZ);
-				if (voxel != Voxel::Type::Empty) {
+				Voxel2 voxel = chunk.GetVoxel(vcpX, vcpY, vcpZ);
+				if (voxel.m_Type != Voxel::Type::Empty) {
 					voxelPosOut = voxelPos2;
 					return true;
 				}
@@ -91,8 +94,26 @@ namespace Lynx {
 		int vcpY = voxelPos.y % Chunk::SIZE;
 		int vcpZ = voxelPos.z % Chunk::SIZE;
 		Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
-		chunk.SetVoxel(vcpX, vcpY, vcpZ, type);
+		chunk.SetVoxelType(vcpX, vcpY, vcpZ, type);
 		chunk.Update();
+	}
+
+	void World::Load(const std::string& file)
+	{
+		Lynx::XRAW xraw = Lynx::Importer::XRawImport("assets/test/sphere.xraw");
+		m_Chunks = Lynx::Importer::XRAWToVoxel(xraw);
+		MakeMesh();
+	}
+
+	void World::MakeMesh()
+	{
+		for (int x = 0; x < SIZE.x; x++) {
+			for (int y = 0; y < SIZE.y; y++) {
+				for (int z = 0; z < SIZE.z; z++) {
+					m_Chunks.at(IndexLinear(x, y, z)).CreateMesh(x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE);
+				}
+			}
+		}
 	}
 
 	int World::IndexLinear(int x, int y, int z)

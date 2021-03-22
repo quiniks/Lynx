@@ -52,28 +52,106 @@ namespace Lynx {
 		return xraw;
 	}
 
-	//TODO
-	std::vector<Voxel2> Importer::XRAWToVoxel(const XRAW& xraw)
+	std::vector<Chunk> Importer::XRAWToVoxel(const XRAW& xraw)
 	{
 		const XRAWHeader& header = xraw.header;
 		const XRAWData& data = xraw.data;
 
+		std::vector<Chunk> chunks;
+		unsigned int XtotalChunks = std::ceilf((float)header.width / Chunk::SIZE);
+		unsigned int YtotalChunks = std::ceilf((float)header.height / Chunk::SIZE);
+		unsigned int ZtotalChunks = std::ceilf((float)header.depth / Chunk::SIZE);
+		unsigned int totalChunks = XtotalChunks * YtotalChunks * ZtotalChunks;
+
+		//TODO: chunks need a reference to world/refactor chunk to be non existent
+		chunks.resize(totalChunks);
+
+		for (int z = 0; z < header.depth; z++) {
+			for (int y = 0; y < header.height; y++) {
+				for (int x = 0; x < header.width; x++) {
+
+					//Position data
+					glm::vec3 voxelWorldPos = { x, y, z };
+					glm::ivec3 chunkPos = glm::floor(voxelWorldPos / (float)Chunk::SIZE);
+					Chunk& chunk = chunks.at(IndexLinear(x, y, z, Chunk::SIZE));
+					int vcpX = (int)voxelWorldPos.x % Chunk::SIZE;
+					int vcpY = (int)voxelWorldPos.y % Chunk::SIZE;
+					int vcpZ = (int)voxelWorldPos.z % Chunk::SIZE;
+
+					//Set voxel type
+					size_t paletteIndex = data.index.at(IndexLinear(x, y, z, header.width, header.height));
+					if (paletteIndex != 0)
+						chunk.SetVoxelType(vcpX, vcpY, vcpZ, Voxel::Type::Solid);//voxel.m_Type = Voxel::Type::Solid;
+					
+					//Set voxel color
+					glm::vec4 color;
+					if (header.num_color_channels == 4) {
+						int depth = pow(2, header.bits_per_channel);
+						color.r = data.palette.at(4 * paletteIndex + 0) / depth;
+						color.g = data.palette.at(4 * paletteIndex + 1) / depth;
+						color.b = data.palette.at(4 * paletteIndex + 2) / depth;
+						color.a = data.palette.at(4 * paletteIndex + 3) / depth;
+					}
+					else if (header.num_color_channels == 3) {
+						int depth = pow(2, header.bits_per_channel);
+						color.r = data.palette.at(3 * paletteIndex + 0) / depth;
+						color.g = data.palette.at(3 * paletteIndex + 1) / depth;
+						color.b = data.palette.at(3 * paletteIndex + 2) / depth;
+						color.a = 1.0f;
+					}
+					chunk.SetVoxelColor(vcpX, vcpY, vcpZ, color);
+				}
+			}
+		}
+
+		return chunks;
+
+		/*
 		unsigned int size = data.index.size();
 		std::vector<Voxel2> voxels;
 
 		voxels.reserve(size);
 		for (size_t i = 0; i < size; ++i) {
 			Voxel2 voxel;
-			if (data.index.at(i) != 0)
+			glm::vec4 color;
+			size_t paletteIndex = data.index.at(i);
+
+			if (paletteIndex != 0)
 				voxel.m_Type = Voxel::Type::Solid;
+
 			if (header.num_color_channels == 4) {
-				glm::vec4 color;
-				color.r = data.palette.at(4 * i + 0) / header.;
-				color.g = data.palette.at(4 * i + 1);
-				color.b = data.palette.at(4 * i + 2);
-				color.a = data.palette.at(4 * i + 3);
+				int depth = pow(2, header.bits_per_channel);
+				color.r = data.palette.at(4 * paletteIndex + 0) / depth;
+				color.g = data.palette.at(4 * paletteIndex + 1) / depth;
+				color.b = data.palette.at(4 * paletteIndex + 2) / depth;
+				color.a = data.palette.at(4 * paletteIndex + 3) / depth;
 			}
+			else if (header.num_color_channels == 3) {
+				int depth = pow(2, header.bits_per_channel);
+				color.r = data.palette.at(3 * paletteIndex + 0) / depth;
+				color.g = data.palette.at(3 * paletteIndex + 1) / depth;
+				color.b = data.palette.at(3 * paletteIndex + 2) / depth;
+				color.a = 1.0f;
+			}
+
+			voxel.SetColor(color);
+			voxels.push_back(voxel);
 		}
-		return std::vector<Voxel2>();
+
+		//return voxels;
+		*/
+	}
+	int Importer::IndexLinear(int x, int y, int z, int size)
+	{
+		int a = size * size;	//Z * Y
+		int b = size;			//Z
+		return a * z + b * y + x;
+	}
+
+	int Importer::IndexLinear(int x, int y, int z, int width, int height)
+	{
+		int a = width * height;	//Z * Y
+		int b = width;			//Z
+		return a * z + b * y + x;
 	}
 }

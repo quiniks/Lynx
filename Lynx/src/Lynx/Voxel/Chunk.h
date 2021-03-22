@@ -22,8 +22,9 @@ namespace Lynx {
 		Chunk(World& world, int x, int y, int z);
 		void CreateMesh(float x, float y, float z);
 
-		Voxel::Type GetVoxel(int x, int y, int z);
-		void SetVoxel(int x, int y, int z, Voxel::Type type);
+		Voxel2 GetVoxel(int x, int y, int z);
+		void SetVoxelType(int x, int y, int z, Voxel::Type type);
+		void SetVoxelColor(int x, int y, int z, const glm::vec4 color);
 
 		void Update();
 		void Render();
@@ -35,7 +36,7 @@ namespace Lynx {
 		static const int SIZE = 16;
 	private:
 
-		std::vector<Voxel::Type> m_Voxels;
+		std::vector<Voxel2> m_Voxels;
 		World& m_World;
 
 		glm::vec3 m_Position{ 0.0f };
@@ -43,8 +44,8 @@ namespace Lynx {
 
 		//Mesh data
 		void CreateVoxelData();
-		void AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao);
-		void AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, const glm::vec3& color);
+		void AddVertex(const glm::vec3& pos, uint32_t color, int side, int ao);
+		void AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, uint32_t color);
 		int VertexAO(const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2);
 
 		std::vector<VertexData> m_VertexData;

@@ -9,15 +9,19 @@ namespace Lynx {
 	Chunk::Chunk(World& world, int x, int y, int z) : m_World(world)
 	{
 		m_ChunkPosition = { x, y, z };
-
+		/*
 		m_Voxels.reserve((uint32_t)pow(SIZE, 3));
 		for (int x = 0; x < SIZE; x++) {
 			for (int y = 0; y < SIZE; y++) {
 				for (int z = 0; z < SIZE; z++) {
-					m_Voxels.emplace_back(Voxel::Type::Solid);
+					Voxel2 voxel;
+					voxel.m_Type = Voxel::Type::Solid;
+					voxel.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+					m_Voxels.push_back(voxel);
 				}
 			}
 		}
+		*/
 	}
 
 	void Chunk::CreateMesh(float x, float y, float z)
@@ -48,7 +52,7 @@ namespace Lynx {
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_VertexData.size());
 	}
 
-	Voxel::Type Chunk::GetVoxel(int x, int y, int z) {
+	Voxel2 Chunk::GetVoxel(int x, int y, int z) {
 		glm::vec3 voxelWorldPos = { m_ChunkPosition.x * SIZE + x, m_ChunkPosition.y * SIZE + y, m_ChunkPosition.z * SIZE + z };
 		glm::ivec3 chunkPos = glm::floor(voxelWorldPos / (float)Chunk::SIZE);
 		bool validChunk = m_World.Inside(chunkPos.x, chunkPos.y, chunkPos.z);
@@ -56,19 +60,21 @@ namespace Lynx {
 			int vcpX = (int)voxelWorldPos.x % Chunk::SIZE;
 			int vcpY = (int)voxelWorldPos.y % Chunk::SIZE;
 			int vcpZ = (int)voxelWorldPos.z % Chunk::SIZE;
-			Voxel::Type type = m_World.GetChunk(chunkPos.x, chunkPos.y, chunkPos.z).m_Voxels.at(IndexLinear(vcpX, vcpY, vcpZ));
-			return type;
+			Voxel2 v = m_World.GetChunk(chunkPos.x, chunkPos.y, chunkPos.z).m_Voxels.at(IndexLinear(vcpX, vcpY, vcpZ));
+			return v;
 		}
 		else {
-			return Voxel::Type::Empty;
+			return Voxel2();
 		}
 	}
 
-	void Chunk::SetVoxel(int x, int y, int z, Voxel::Type type)
+	void Chunk::SetVoxelType(int x, int y, int z, Voxel::Type type)
 	{
+		//Set voxel type
 		if (Inside(x, y, z))
-			m_Voxels.at(IndexLinear(x, y, z)) = type;
+			m_Voxels.at(IndexLinear(x, y, z)).m_Type = type;
 
+		//Chunk border check
 		if (x == 0) {
 			bool validChunk = m_World.Inside(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z);
 			if (validChunk)
@@ -101,6 +107,12 @@ namespace Lynx {
 			if (validChunk)
 				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1).Update();
 		}
+	}
+
+	void Chunk::SetVoxelColor(int x, int y, int z, const glm::vec4 color)
+	{
+		if (Inside(x, y, z))
+			m_Voxels.at(IndexLinear(x, y, z)).SetColor(color);
 	}
 
 	int Chunk::IndexLinear(int x, int y, int z)
@@ -139,15 +151,15 @@ namespace Lynx {
 	{
 		bool adjA2 = false, adjB2 = false, adjC2 = false;
 		glm::ivec3 a = p + d1;
-		Voxel::Type typeA2 = GetVoxel(a.x, a.y, a.z);
+		Voxel::Type typeA2 = GetVoxel(a.x, a.y, a.z).m_Type;
 		if (typeA2 != Voxel::Type::Empty)
 			adjA2 = true;
 		glm::ivec3 b = p + d2;
-		Voxel::Type typeB2 = GetVoxel(b.x, b.y, b.z);
+		Voxel::Type typeB2 = GetVoxel(b.x, b.y, b.z).m_Type;
 		if (typeB2 != Voxel::Type::Empty)
 			adjB2 = true;
 		glm::ivec3 c = p + d1 + d2;
-		Voxel::Type typeC2 = GetVoxel(c.x, c.y, c.z);
+		Voxel::Type typeC2 = GetVoxel(c.x, c.y, c.z).m_Type;
 		if (typeC2 != Voxel::Type::Empty)
 			adjC2 = true;
 
@@ -156,14 +168,14 @@ namespace Lynx {
 		return adjA2 + adjB2 + adjC2;
 	}
 
-	void Chunk::AddVertex(const glm::vec3& pos, const glm::vec3& color, int side, int ao)
+	void Chunk::AddVertex(const glm::vec3& pos, uint32_t color, int side, int ao)
 	{
 		glm::vec3 worldPos = (pos * Voxel::SIZE + m_Position);
 		
-		m_VertexData.emplace_back(VertexData{ worldPos, glm::packU3x10_1x2({color, 1.0f}), pack2x4(side, ao) });
+		m_VertexData.emplace_back(VertexData{ worldPos, color, pack2x4(side, ao) });
 	}
 	
-	void Chunk::AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, const glm::vec3& color)
+	void Chunk::AddFace(const glm::ivec3* vertices, const int* ao, const glm::ivec3& p, const glm::ivec3& d, uint32_t color)
 	{
 		int side = 0;
 		if (d.x == 1)
@@ -208,9 +220,10 @@ namespace Lynx {
 			for (int y = 0; y < SIZE; y++) {
 				for (int z = 0; z < SIZE; z++) {
 					int voxelIndex = IndexLinear(x, y, z);
-					if (m_Voxels.at(voxelIndex) != Voxel::Type::Empty) {
+					Voxel2 voxel = m_Voxels.at(voxelIndex);
+					if (voxel.m_Type != Voxel::Type::Empty) {
 						
-						if (GetVoxel(x - 1, y, z) == Voxel::Type::Empty) {
+						if (GetVoxel(x - 1, y, z).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 vert[4] = {
 								{0, 0, 0},
 								{0, 1, 0},
@@ -223,10 +236,10 @@ namespace Lynx {
 								VertexAO({ x - 1, y, z }, { 0, -1, 0 }, { 0, 0,  1 }),
 								VertexAO({ x - 1, y, z }, { 0,  1, 0 }, { 0, 0,  1 }),
 							};
-							AddFace(vert, ao, { x, y, z }, { -1, 0, 0 }, color);
+							AddFace(vert, ao, { x, y, z }, { -1, 0, 0 }, voxel.GetColor());
 						}
 
-						if (GetVoxel(x + 1, y, z) == Voxel::Type::Empty) {
+						if (GetVoxel(x + 1, y, z).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 vert[4] = {
 								{1, 1, 1},
 								{1, 1, 0},
@@ -239,10 +252,10 @@ namespace Lynx {
 								VertexAO({ x + 1, y, z }, { 0, -1, 0 }, { 0, 0,  1 }),
 								VertexAO({ x + 1, y, z }, { 0, -1, 0 }, { 0, 0, -1 }),
 							};
-							AddFace(vert, ao, { x, y, z }, { 1, 0, 0 }, color);
+							AddFace(vert, ao, { x, y, z }, { 1, 0, 0 }, voxel.GetColor());
 						}
 
-						if (GetVoxel(x, y - 1, z) == Voxel::Type::Empty) {
+						if (GetVoxel(x, y - 1, z).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{1, 0, 1},
 								{1, 0, 0},
@@ -255,10 +268,10 @@ namespace Lynx {
 								VertexAO({ x, y - 1, z }, { -1, 0, 0 }, { 0, 0,  1 }),
 								VertexAO({ x, y - 1, z }, { -1, 0, 0 }, { 0, 0, -1 }),
 							};
-							AddFace(face, ao, { x, y, z }, { 0, -1, 0 }, color);
+							AddFace(face, ao, { x, y, z }, { 0, -1, 0 }, voxel.GetColor());
 						}
 						
-						if (GetVoxel(x, y + 1, z) == Voxel::Type::Empty) {
+						if (GetVoxel(x, y + 1, z).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{0, 1, 0},
 								{1, 1, 0},
@@ -271,10 +284,10 @@ namespace Lynx {
 								VertexAO({ x, y + 1, z }, { -1, 0, 0 }, { 0, 0,  1 }),
 								VertexAO({ x, y + 1, z }, {  1, 0, 0 }, { 0, 0,  1 }),
 							};
-							AddFace(face, ao, { x, y, z }, { 0, 1, 0 }, color);
+							AddFace(face, ao, { x, y, z }, { 0, 1, 0 }, voxel.GetColor());
 						}
 						
-						if (GetVoxel(x, y, z - 1) == Voxel::Type::Empty) {
+						if (GetVoxel(x, y, z - 1).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{0, 0, 0},
 								{1, 0, 0},
@@ -287,10 +300,10 @@ namespace Lynx {
 								VertexAO({ x, y, z - 1 }, { -1, 0, 0 }, { 0,  1, 0 }),
 								VertexAO({ x, y, z - 1 }, {  1, 0, 0 }, { 0,  1, 0 }),
 							};
-							AddFace(face, ao, { x, y, z }, { 0, 0, -1 }, color);
+							AddFace(face, ao, { x, y, z }, { 0, 0, -1 }, voxel.GetColor());
 						}
 
-						if (GetVoxel(x, y, z + 1) == Voxel::Type::Empty) {
+						if (GetVoxel(x, y, z + 1).m_Type == Voxel::Type::Empty) {
 							glm::ivec3 face[4] = {
 								{1, 1, 1},
 								{1, 0, 1},
@@ -303,7 +316,7 @@ namespace Lynx {
 								VertexAO({ x, y, z + 1 }, { -1, 0, 0 }, { 0,  1, 0 }),
 								VertexAO({ x, y, z + 1 }, { -1, 0, 0 }, { 0, -1, 0 }),
 							};
-							AddFace(face, ao, { x, y, z }, { 0, 0, 1 }, color);
+							AddFace(face, ao, { x, y, z }, { 0, 0, 1 }, voxel.GetColor());
 						}
 					}
 				}
