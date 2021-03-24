@@ -45,6 +45,7 @@ SandBoxLayer::SandBoxLayer()
 	m_ColorShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
 
 	m_World.Init();
+	m_World.Load("assets/test/sphere.xraw");
 	m_Grid.Init(0.2f, 5, { 0.0f, 0.0f, 0.0f });
 
 	//Lynx::App::Get().GetWindow().SetVSync(false);

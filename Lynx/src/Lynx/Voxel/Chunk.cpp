@@ -6,28 +6,15 @@
 #include "glad/glad.h"
 
 namespace Lynx {
-	Chunk::Chunk(World& world, int x, int y, int z) : m_World(world)
+	Chunk::Chunk(World& world, unsigned int x, unsigned int y, unsigned int z) : m_World(world)
 	{
 		m_ChunkPosition = { x, y, z };
-		/*
-		m_Voxels.reserve((uint32_t)pow(SIZE, 3));
-		for (int x = 0; x < SIZE; x++) {
-			for (int y = 0; y < SIZE; y++) {
-				for (int z = 0; z < SIZE; z++) {
-					Voxel2 voxel;
-					voxel.m_Type = Voxel::Type::Solid;
-					voxel.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-					m_Voxels.push_back(voxel);
-				}
-			}
-		}
-		*/
+		m_Position = { x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE };
+		m_Voxels.resize(SIZE * SIZE * SIZE);
 	}
 
-	void Chunk::CreateMesh(float x, float y, float z)
+	void Chunk::CreateMesh()
 	{
-		m_Position = { x, y, z };
-
 		CreateVoxelData();
 
 		m_VA = VertexArray::Create();

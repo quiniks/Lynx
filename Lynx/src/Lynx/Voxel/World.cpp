@@ -13,24 +13,7 @@ namespace Lynx {
 
 	void World::Init()
 	{
-		/*
-		m_Chunks.reserve((size_t)SIZE.x * SIZE.y * SIZE.z);
-		for (int x = 0; x < SIZE.x; x++) {
-			for (int y = 0; y < SIZE.y; y++) {
-				for (int z = 0; z < SIZE.z; z++) {
-					m_Chunks.emplace_back(*this, x, y, z);
-				}
-			}
-		}
-		int memTotal = 0;
-		for (int x = 0; x < SIZE.x; x++) {
-			for (int y = 0; y < SIZE.y; y++) {
-				for (int z = 0; z < SIZE.z; z++) {
-					m_Chunks.at(IndexLinear(x, y, z)).CreateMesh(x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE);
-				}
-			}
-		}
-		*/
+
 	}
 
 	void World::Render()
@@ -100,19 +83,15 @@ namespace Lynx {
 
 	void World::Load(const std::string& file)
 	{
-		Lynx::XRAW xraw = Lynx::Importer::XRawImport("assets/test/sphere.xraw");
-		m_Chunks = Lynx::Importer::XRAWToVoxel(xraw);
+		Lynx::XRAW xraw = Lynx::Importer::XRawImport(file);
+		m_Chunks = Lynx::Importer::XRAWToVoxel(xraw, *this);
 		MakeMesh();
 	}
 
 	void World::MakeMesh()
 	{
-		for (int x = 0; x < SIZE.x; x++) {
-			for (int y = 0; y < SIZE.y; y++) {
-				for (int z = 0; z < SIZE.z; z++) {
-					m_Chunks.at(IndexLinear(x, y, z)).CreateMesh(x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE);
-				}
-			}
+		for (auto& chunk : m_Chunks) {
+			chunk.CreateMesh();
 		}
 	}
 

@@ -11,16 +11,12 @@ namespace Lynx {
 		glm::vec3 Pos;
 		uint32_t Color;
 		uint8_t SideAndAO;
-
-		//glm::vec3 Color;
-		//int Side;
-		//int AO;
 	};
 
 	class Chunk {
 	public:
-		Chunk(World& world, int x, int y, int z);
-		void CreateMesh(float x, float y, float z);
+		Chunk(World& world, unsigned int x, unsigned int y, unsigned int z);
+		void CreateMesh();
 
 		Voxel2 GetVoxel(int x, int y, int z);
 		void SetVoxelType(int x, int y, int z, Voxel::Type type);
@@ -40,7 +36,7 @@ namespace Lynx {
 		World& m_World;
 
 		glm::vec3 m_Position{ 0.0f };
-		glm::ivec3 m_ChunkPosition{ 0 };
+		glm::uvec3 m_ChunkPosition{ 0 };
 
 		//Mesh data
 		void CreateVoxelData();

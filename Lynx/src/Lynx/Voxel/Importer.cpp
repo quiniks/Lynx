@@ -1,6 +1,8 @@
 #include "Lynxpch.h"
 #include "Importer.h"
 #include "Lynx/Detail/glm.h"
+#include "Lynx/Utility/Util.h"
+#include "Lynx/Voxel/World.h"
 #include <iostream>
 #include <fstream>
 
@@ -52,19 +54,22 @@ namespace Lynx {
 		return xraw;
 	}
 
-	std::vector<Chunk> Importer::XRAWToVoxel(const XRAW& xraw)
+	std::vector<Chunk> Importer::XRAWToVoxel(const XRAW& xraw, World& world)
 	{
 		const XRAWHeader& header = xraw.header;
 		const XRAWData& data = xraw.data;
 
-		std::vector<Chunk> chunks;
 		unsigned int XtotalChunks = std::ceilf((float)header.width / Chunk::SIZE);
 		unsigned int YtotalChunks = std::ceilf((float)header.height / Chunk::SIZE);
 		unsigned int ZtotalChunks = std::ceilf((float)header.depth / Chunk::SIZE);
 		unsigned int totalChunks = XtotalChunks * YtotalChunks * ZtotalChunks;
+		std::vector<Chunk> chunks;
+		chunks.reserve(totalChunks);
 
-		//TODO: chunks need a reference to world/refactor chunk to be non existent
-		chunks.resize(totalChunks);
+		auto initChunks = [&](const glm::uvec3& chunkPos) {
+			chunks.push_back(Chunk{ world, chunkPos.x, chunkPos.y, chunkPos.z });
+		};
+		LoopXYZ(initChunks, { XtotalChunks, YtotalChunks, ZtotalChunks });
 
 		for (int z = 0; z < header.depth; z++) {
 			for (int y = 0; y < header.height; y++) {
@@ -73,7 +78,8 @@ namespace Lynx {
 					//Position data
 					glm::vec3 voxelWorldPos = { x, y, z };
 					glm::ivec3 chunkPos = glm::floor(voxelWorldPos / (float)Chunk::SIZE);
-					Chunk& chunk = chunks.at(IndexLinear(x, y, z, Chunk::SIZE));
+					unsigned int index = IndexLinear(chunkPos.x, chunkPos.y, chunkPos.z, Chunk::SIZE);
+					Chunk& chunk = chunks.at(index);
 					int vcpX = (int)voxelWorldPos.x % Chunk::SIZE;
 					int vcpY = (int)voxelWorldPos.y % Chunk::SIZE;
 					int vcpZ = (int)voxelWorldPos.z % Chunk::SIZE;
@@ -84,7 +90,7 @@ namespace Lynx {
 						chunk.SetVoxelType(vcpX, vcpY, vcpZ, Voxel::Type::Solid);//voxel.m_Type = Voxel::Type::Solid;
 					
 					//Set voxel color
-					glm::vec4 color;
+					glm::vec4 color{0.0f};
 					if (header.num_color_channels == 4) {
 						int depth = pow(2, header.bits_per_channel);
 						color.r = data.palette.at(4 * paletteIndex + 0) / depth;
