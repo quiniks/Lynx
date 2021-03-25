@@ -19,8 +19,8 @@ namespace Lynx {
 		void CreateMesh();
 
 		Voxel2 GetVoxel(int x, int y, int z);
-		void SetVoxelType(int x, int y, int z, Voxel::Type type);
-		void SetVoxelColor(int x, int y, int z, const glm::vec4 color);
+		void SetVoxelType(int x, int y, int z, Voxel::Type type, bool updateAdj);
+		void SetVoxelColor(int x, int y, int z, const glm::vec4& color);
 
 		void Update();
 		void Render();

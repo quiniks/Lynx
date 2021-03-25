@@ -16,9 +16,13 @@ namespace Lynx {
 		void Load(const std::string& file);
 		void MakeMesh();
 
-		static int IndexLinear(int x, int y, int z);
-		static bool Inside(int x, int y, int z);
-		static constexpr glm::ivec3 SIZE{ 2, 1, 2 };
+		int IndexLinear(int x, int y, int z);
+		bool Inside(int x, int y, int z);
+
+		std::vector<Chunk>& Chunks() {
+			return m_Chunks;
+		}
+		glm::uvec3 m_Size{ 0 };
 	private:
 		std::vector<Chunk> m_Chunks;
 	};

@@ -9,6 +9,7 @@
 namespace Lynx {
 	XRAW Importer::XRawImport(const std::string& file)
 	{
+		LX_PROFILE_FUNCTION();
 		LX_CORE_INFO("Importing XRAW {0}", file);
 		XRAW xraw;
 		/////////  XRAW Header	/////////
@@ -36,14 +37,14 @@ namespace Lynx {
 		unsigned int indexBufferSize = h.width * h.height * h.depth;
 		unsigned int sizeOfIndices = h.bits_per_index / 8;
 		for (unsigned int i = 0; i < indexBufferSize; ++i) {
-			d.index.push_back(0);
+			d.index.emplace_back(0);
 			fs.read((char*)&d.index.back(), sizeOfIndices);
 		}
 		
 		unsigned int paletteSize = h.num_palette_clr * h.num_color_channels;
 		unsigned int sizeofColors = h.bits_per_channel / 8;
 		for (unsigned int i = 0; i < paletteSize; ++i) {
-			d.palette.push_back(0);
+			d.palette.emplace_back(0);
 			fs.read((char*)&d.palette.back(), sizeofColors);
 		}
 
@@ -54,99 +55,72 @@ namespace Lynx {
 		return xraw;
 	}
 
-	std::vector<Chunk> Importer::XRAWToVoxel(const XRAW& xraw, World& world)
+	void Importer::XRAWToVoxel(const XRAW& xraw, World& world)
 	{
+		LX_PROFILE_FUNCTION();
 		const XRAWHeader& header = xraw.header;
 		const XRAWData& data = xraw.data;
 
-		unsigned int XtotalChunks = std::ceilf((float)header.width / Chunk::SIZE);
-		unsigned int YtotalChunks = std::ceilf((float)header.height / Chunk::SIZE);
-		unsigned int ZtotalChunks = std::ceilf((float)header.depth / Chunk::SIZE);
+		unsigned int XtotalChunks = (unsigned int)std::ceilf((float)header.width / Chunk::SIZE);
+		unsigned int YtotalChunks = (unsigned int)std::ceilf((float)header.depth / Chunk::SIZE);
+		unsigned int ZtotalChunks = (unsigned int)std::ceilf((float)header.height / Chunk::SIZE);
 		unsigned int totalChunks = XtotalChunks * YtotalChunks * ZtotalChunks;
-		std::vector<Chunk> chunks;
-		chunks.reserve(totalChunks);
+		std::vector<Chunk>& chunks = world.Chunks();
+		world.m_Size.x = XtotalChunks;
+		world.m_Size.y = YtotalChunks;
+		world.m_Size.z = ZtotalChunks;
 
-		auto initChunks = [&](const glm::uvec3& chunkPos) {
-			chunks.push_back(Chunk{ world, chunkPos.x, chunkPos.y, chunkPos.z });
-		};
-		LoopXYZ(initChunks, { XtotalChunks, YtotalChunks, ZtotalChunks });
+		{
+			LX_PROFILE_SCOPE("reserve chunks");
+			chunks.reserve(totalChunks);
+			auto initChunks = [&](const glm::uvec3& chunkPos) {
+				chunks.emplace_back(Chunk{ world, chunkPos.x, chunkPos.y, chunkPos.z });
+			};
+			//xraw height/y axis is the z axis
+			LoopXYZ(initChunks, { XtotalChunks, YtotalChunks, ZtotalChunks });
+		}
 
-		for (int z = 0; z < header.depth; z++) {
-			for (int y = 0; y < header.height; y++) {
-				for (int x = 0; x < header.width; x++) {
-
+		for (int z = 0; z < header.height; ++z) {
+			for (int y = 0; y < header.depth; ++y) {
+				for (int x = 0; x < header.width; ++x) {
 					//Position data
 					glm::vec3 voxelWorldPos = { x, y, z };
 					glm::ivec3 chunkPos = glm::floor(voxelWorldPos / (float)Chunk::SIZE);
-					unsigned int index = IndexLinear(chunkPos.x, chunkPos.y, chunkPos.z, Chunk::SIZE);
+					unsigned int index = IndexLinear(chunkPos.z, chunkPos.y, chunkPos.x, world.m_Size.x, world.m_Size.y);
 					Chunk& chunk = chunks.at(index);
 					int vcpX = (int)voxelWorldPos.x % Chunk::SIZE;
 					int vcpY = (int)voxelWorldPos.y % Chunk::SIZE;
 					int vcpZ = (int)voxelWorldPos.z % Chunk::SIZE;
 
 					//Set voxel type
-					size_t paletteIndex = data.index.at(IndexLinear(x, y, z, header.width, header.height));
-					if (paletteIndex != 0)
-						chunk.SetVoxelType(vcpX, vcpY, vcpZ, Voxel::Type::Solid);//voxel.m_Type = Voxel::Type::Solid;
+					size_t paletteIndex = data.index.at(IndexLinear(z, x, y, header.width, header.height));
+					if (paletteIndex != 0) {
+						LX_PROFILE_SCOPE("set");
+						chunk.SetVoxelType(vcpX, vcpY, vcpZ, Voxel::Type::Solid, false);
+					}
 					
 					//Set voxel color
 					glm::vec4 color{0.0f};
 					if (header.num_color_channels == 4) {
-						int depth = pow(2, header.bits_per_channel);
-						color.r = data.palette.at(4 * paletteIndex + 0) / depth;
-						color.g = data.palette.at(4 * paletteIndex + 1) / depth;
-						color.b = data.palette.at(4 * paletteIndex + 2) / depth;
-						color.a = data.palette.at(4 * paletteIndex + 3) / depth;
+						float depth = pow(2, header.bits_per_channel);
+						color.r = data.palette.at(4 * paletteIndex + 0) / (depth - 1);
+						color.g = data.palette.at(4 * paletteIndex + 1) / (depth - 1);
+						color.b = data.palette.at(4 * paletteIndex + 2) / (depth - 1);
+						color.a = data.palette.at(4 * paletteIndex + 3) / (depth - 1);
 					}
 					else if (header.num_color_channels == 3) {
-						int depth = pow(2, header.bits_per_channel);
-						color.r = data.palette.at(3 * paletteIndex + 0) / depth;
-						color.g = data.palette.at(3 * paletteIndex + 1) / depth;
-						color.b = data.palette.at(3 * paletteIndex + 2) / depth;
+						float depth = pow(2, header.bits_per_channel);
+						color.r = data.palette.at(3 * paletteIndex + 0) / (depth - 1);
+						color.g = data.palette.at(3 * paletteIndex + 1) / (depth - 1);
+						color.b = data.palette.at(3 * paletteIndex + 2) / (depth - 1);
 						color.a = 1.0f;
 					}
 					chunk.SetVoxelColor(vcpX, vcpY, vcpZ, color);
 				}
 			}
 		}
-
-		return chunks;
-
-		/*
-		unsigned int size = data.index.size();
-		std::vector<Voxel2> voxels;
-
-		voxels.reserve(size);
-		for (size_t i = 0; i < size; ++i) {
-			Voxel2 voxel;
-			glm::vec4 color;
-			size_t paletteIndex = data.index.at(i);
-
-			if (paletteIndex != 0)
-				voxel.m_Type = Voxel::Type::Solid;
-
-			if (header.num_color_channels == 4) {
-				int depth = pow(2, header.bits_per_channel);
-				color.r = data.palette.at(4 * paletteIndex + 0) / depth;
-				color.g = data.palette.at(4 * paletteIndex + 1) / depth;
-				color.b = data.palette.at(4 * paletteIndex + 2) / depth;
-				color.a = data.palette.at(4 * paletteIndex + 3) / depth;
-			}
-			else if (header.num_color_channels == 3) {
-				int depth = pow(2, header.bits_per_channel);
-				color.r = data.palette.at(3 * paletteIndex + 0) / depth;
-				color.g = data.palette.at(3 * paletteIndex + 1) / depth;
-				color.b = data.palette.at(3 * paletteIndex + 2) / depth;
-				color.a = 1.0f;
-			}
-
-			voxel.SetColor(color);
-			voxels.push_back(voxel);
-		}
-
-		//return voxels;
-		*/
 	}
+
 	int Importer::IndexLinear(int x, int y, int z, int size)
 	{
 		int a = size * size;	//Z * Y

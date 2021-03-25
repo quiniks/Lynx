@@ -11,20 +11,21 @@ namespace Lynx {
 		m_ChunkPosition = { x, y, z };
 		m_Position = { x * Chunk::SIZE * Voxel::SIZE, y * Chunk::SIZE * Voxel::SIZE, z * Chunk::SIZE * Voxel::SIZE };
 		m_Voxels.resize(SIZE * SIZE * SIZE);
+
+		m_VA = VertexArray::Create();
+		m_VB = VertexBuffer::Create(nullptr, 0);
+		m_VB->SetLayout({
+			{ Lynx::ShaderDataType::Float3, "a_Position" },
+			{ Lynx::ShaderDataType::PackedInt, "a_Color", true },
+			{ Lynx::ShaderDataType::UInt, "a_SideAndAO" }
+			});
+		m_VA->AddVertexBuffer(m_VB);
 	}
 
 	void Chunk::CreateMesh()
 	{
 		CreateVoxelData();
-
-		m_VA = VertexArray::Create();
-		m_VB = VertexBuffer::Create(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
-		m_VB->SetLayout({
-			{ Lynx::ShaderDataType::Float3, "a_Position" },
-			{ Lynx::ShaderDataType::PackedInt, "a_Color" },
-			{ Lynx::ShaderDataType::UInt, "a_SideAndAO" }
-			});
-		m_VA->AddVertexBuffer(m_VB);
+		m_VB->SetData(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
 	}
 
 	void Chunk::Update()
@@ -55,48 +56,50 @@ namespace Lynx {
 		}
 	}
 
-	void Chunk::SetVoxelType(int x, int y, int z, Voxel::Type type)
+	void Chunk::SetVoxelType(int x, int y, int z, Voxel::Type type, bool updateAdj)
 	{
 		//Set voxel type
 		if (Inside(x, y, z))
 			m_Voxels.at(IndexLinear(x, y, z)).m_Type = type;
 
 		//Chunk border check
-		if (x == 0) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
-		}
-		else if (x == SIZE - 1) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
-		}
+		if (updateAdj) {
+			if (x == 0) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x - 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
+			}
+			else if (x == SIZE - 1) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x + 1, m_ChunkPosition.y, m_ChunkPosition.z).Update();
+			}
 
-		if (y == 0) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z).Update();
-		}
-		else if (y == SIZE - 1) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z).Update();
-		}
+			if (y == 0) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y - 1, m_ChunkPosition.z).Update();
+			}
+			else if (y == SIZE - 1) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y + 1, m_ChunkPosition.z).Update();
+			}
 
-		if (z == 0) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1).Update();
-		}
-		else if (z == SIZE - 1) {
-			bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1);
-			if (validChunk)
-				m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1).Update();
+			if (z == 0) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z - 1).Update();
+			}
+			else if (z == SIZE - 1) {
+				bool validChunk = m_World.Inside(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1);
+				if (validChunk)
+					m_World.GetChunk(m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z + 1).Update();
+			}
 		}
 	}
 
-	void Chunk::SetVoxelColor(int x, int y, int z, const glm::vec4 color)
+	void Chunk::SetVoxelColor(int x, int y, int z, const glm::vec4& color)
 	{
 		if (Inside(x, y, z))
 			m_Voxels.at(IndexLinear(x, y, z)).SetColor(color);

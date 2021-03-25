@@ -77,14 +77,15 @@ namespace Lynx {
 		int vcpY = voxelPos.y % Chunk::SIZE;
 		int vcpZ = voxelPos.z % Chunk::SIZE;
 		Chunk& chunk = GetChunk(chunkPos.x, chunkPos.y, chunkPos.z);
-		chunk.SetVoxelType(vcpX, vcpY, vcpZ, type);
+		chunk.SetVoxelType(vcpX, vcpY, vcpZ, type, true);
 		chunk.Update();
 	}
 
 	void World::Load(const std::string& file)
 	{
+		LX_PROFILE_FUNCTION();
 		Lynx::XRAW xraw = Lynx::Importer::XRawImport(file);
-		m_Chunks = Lynx::Importer::XRAWToVoxel(xraw, *this);
+		Lynx::Importer::XRAWToVoxel(xraw, *this);
 		MakeMesh();
 	}
 
@@ -97,14 +98,14 @@ namespace Lynx {
 
 	int World::IndexLinear(int x, int y, int z)
 	{
-		int a = SIZE.z * SIZE.y;	//Z * Y
-		int b = SIZE.z;			//Z
+		int a = m_Size.z * m_Size.y;	//Z * Y
+		int b = m_Size.z;			//Z
 		return a * x + b * y + z;
 	}
 
 	bool World::Inside(int x, int y, int z)
 	{
-		bool upper = x >= SIZE.x || y >= SIZE.y || z >= SIZE.z;
+		bool upper = x >= m_Size.x || y >= m_Size.y || z >= m_Size.z;
 		bool lower = x < 0.0f || y < 0.0f || z < 0.0f;
 		if (upper || lower)
 			return false;

@@ -45,7 +45,7 @@ namespace Lynx {
 		glm::vec2 m_PreviousMouse = { 0.0f, 0.0f };
 
 		glm::vec3 m_Front = { 0.0f, 0.0f, -1.0f };
-		glm::vec3 m_Right;
+		glm::vec3 m_Right{0.0f};
 		glm::vec3 m_Up = { 0.0f, 1.0f, 0.0f };
 
 		glm::mat4 m_ProjectionMatrix = glm::mat4{ 0.0f };

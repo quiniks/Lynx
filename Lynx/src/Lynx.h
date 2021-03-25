@@ -19,5 +19,6 @@
 #include <Lynx/Render/VertexArray.h>
 #include <Lynx/Render/FreeCamera.h>
 
-//#include <Lynx/Voxel/VoxelMachine.h>
+#include <Lynx/Utility/Instrumentor.h>
+
 #include <Lynx/Voxel/VoxelRay.h>

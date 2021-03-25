@@ -17,7 +17,7 @@ public:
 private:
 	Lynx::Shader m_VoxelShader;
 	Lynx::Shader m_ColorShader;
-	Lynx::Shader m_PackedShader;
+	//Lynx::Shader m_PackedShader;
 	Lynx::World m_World;
 	Lynx::Grid m_Grid;
 	//Lynx::VoxelMachine m_VoxelMachine;
@@ -30,11 +30,11 @@ private:
 	bool m_RenderMode = false;
 
 	//TEMP
-	struct VertexData {
-		glm::vec3 Pos;
-		uint32_t Color;
-	};
-	std::vector<VertexData> m_VertexData;
-	Lynx::Ref<Lynx::VertexArray> m_VA = nullptr;
-	Lynx::Ref<Lynx::VertexBuffer> m_VB = nullptr;
+	//struct VertexData {
+	//	glm::vec3 Pos;
+	//	uint32_t Color;
+	//};
+	//std::vector<VertexData> m_VertexData;
+	//Lynx::Ref<Lynx::VertexArray> m_VA = nullptr;
+	//Lynx::Ref<Lynx::VertexBuffer> m_VB = nullptr;
 };

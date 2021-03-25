@@ -23,7 +23,7 @@ namespace Lynx {
 	class Voxel2 {
 	public:
 		void SetColor(const glm::vec4& color) {
-			m_Color = glm::packU3x10_1x2(color);
+			m_Color = glm::packUnorm3x10_1x2(color);
 		};
 		uint32_t GetColor() {
 			return m_Color;

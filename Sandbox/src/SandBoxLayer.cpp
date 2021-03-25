@@ -7,27 +7,6 @@
 
 SandBoxLayer::SandBoxLayer()
 {
-
-
-	Lynx::Voxel2 test;
-	test.SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
-	uint32_t color = test.GetColor();
-
-	m_VertexData.emplace_back(VertexData{ { 0.0f, 0.0f, 0.0f }, color });
-	m_VertexData.emplace_back(VertexData{ { 1.0f, 0.0f, 0.0f }, color });
-	m_VertexData.emplace_back(VertexData{ { 0.0f, 1.0f, 0.0f }, color });
-
-	m_VA = Lynx::VertexArray::Create();
-	m_VB = Lynx::VertexBuffer::Create(m_VertexData.data(), m_VertexData.size() * sizeof(VertexData));
-	m_VB->SetLayout({
-		{ Lynx::ShaderDataType::Float3, "a_Position" },
-		{ Lynx::ShaderDataType::PackedInt, "a_Color" },
-		});
-	m_VA->AddVertexBuffer(m_VB);
-	m_PackedShader.Load("assets/shaders/packedColorTest.glsl");
-	m_PackedShader.Bind();
-	m_PackedShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
-
 	Lynx::Window& window = Lynx::App::Get().GetWindow();
 	m_FreeCamera.Init(45.0f, window.GetFrameWidth(), window.GetFrameHeight(), 0.1f, 1000.0f);
 	m_VoxelShader.Load("assets/shaders/voxelShaderAlt.glsl");
@@ -36,7 +15,7 @@ SandBoxLayer::SandBoxLayer()
 	m_VoxelShader.SetFloat("u_VoxelSize", Lynx::Voxel::SIZE);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
 	m_VoxelShader.SetFloat3("u_LightPosition", { 8.0f, 20.0f, 8.0f });
-	m_VoxelShader.SetFloat3("u_AmbientColor", { 0.3f, 0.3f, 0.3f });
+	m_VoxelShader.SetFloat3("u_AmbientColor", { 0.5f, 0.5f, 0.5f });
 	m_VoxelShader.SetFloat3("u_DiffuseColor", { 0.8f, 0.8f, 0.8f });
 
 	m_ColorShader.Load("assets/shaders/flatColorShader.glsl");
@@ -45,7 +24,7 @@ SandBoxLayer::SandBoxLayer()
 	m_ColorShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
 
 	m_World.Init();
-	m_World.Load("assets/test/sphere.xraw");
+	m_World.Load("assets/test/base.xraw");
 	m_Grid.Init(0.2f, 5, { 0.0f, 0.0f, 0.0f });
 
 	//Lynx::App::Get().GetWindow().SetVSync(false);
@@ -83,11 +62,6 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_ColorShader.Bind();
 	m_ColorShader.SetMat4("u_MVP", vp);
 	m_Grid.Render();
-
-	m_PackedShader.Bind();
-	m_PackedShader.SetMat4("u_MVP", vp);
-	m_VA->Bind();
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_VertexData.size());
 }
 
 void SandBoxLayer::OnImGuiRender()
