@@ -7,7 +7,7 @@ namespace Lynx {
 	class Importer {
 	public:
 		static XRAW XRawImport(const std::string& file);
-		static std::vector<Chunk> XRAWToVoxel(const XRAW& xrawData, World& world);
+		static void XRAWToVoxel(const XRAW& xrawData, World& world);
 	private:
 		static int IndexLinear(int x, int y, int z, int size);
 		static int IndexLinear(int x, int y, int z, int width, int height);

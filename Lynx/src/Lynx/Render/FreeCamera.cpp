@@ -46,8 +46,10 @@ namespace Lynx {
 	void FreeCamera::SetViewportSize(float width, float height)
 	{
 		m_ViewportWidth = width; m_ViewportHeight = height;
-		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-		UpdateProjection();
+		if (width != 0.0f && height != 0.0f) {
+			m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
+			UpdateProjection();
+		}
 	}
 
 	void FreeCamera::UpdateView()

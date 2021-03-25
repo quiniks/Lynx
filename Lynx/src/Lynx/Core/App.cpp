@@ -26,12 +26,16 @@ namespace Lynx {
 			float time = (float)glfwGetTime();
 			TimeStep timeStep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
-			for(auto& layer : m_LayerStack)
-				layer->OnUpdate(timeStep);
-			m_ImGuiHelper.Begin();
-			for (auto& layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiHelper.End();
+
+			if (!m_Minimized) {
+				for (auto& layer : m_LayerStack)
+					layer->OnUpdate(timeStep);
+				m_ImGuiHelper.Begin();
+				for (auto& layer : m_LayerStack)
+					layer->OnImGuiRender();
+				m_ImGuiHelper.End();
+			}
+
 			m_Window->OnUpdate();
 		}
 	}
@@ -40,6 +44,7 @@ namespace Lynx {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(App::OnWindowClosed));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(App::OnWindowResized));
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it) {
 			if (e.Handled)
@@ -52,5 +57,15 @@ namespace Lynx {
 	{
 		m_Running = false;
 		return true;
+	}
+
+	bool App::OnWindowResized(WindowResizeEvent& e)
+	{
+		if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+			m_Minimized = true;
+			return false;
+		}
+		m_Minimized = false;
+		return false;
 	}
 }

@@ -4,8 +4,6 @@
 in vec3 a_Position;
 in vec3 a_Color;
 in uint a_SideAndAO;
-//in int a_Side;
-//in int a_AO;
 out vec3 v_Color;
 out vec3 v_Normal;
 out vec3 v_AO;
