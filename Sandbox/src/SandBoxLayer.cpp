@@ -1,8 +1,6 @@
 #include "SandBoxLayer.h"
 #include "Lynx/Detail/glm.h"
 #include "Lynx/Detail/imgui.h"
-#include "Lynx/Voxel/Voxel.h"
-#include "Lynx/Voxel/Importer.h"
 #include <glad/glad.h>
 
 SandBoxLayer::SandBoxLayer()
