@@ -3,7 +3,7 @@
 #include "Lynx/Voxel/Voxel.h"
 #include "Lynx/Events/Input.h"
 #include "Lynx/Voxel/VoxelRay.h"
-#include "Lynx/Voxel/Importer.h"
+//#include "Lynx/Voxel/Importer.h"
 #include <glad/glad.h>
 
 namespace Lynx {
@@ -48,8 +48,9 @@ namespace Lynx {
 		rayData2.direction = rayWorld;
 		rayData2.maxDistance = 50.0f;
 		rayData2.unitSize = Voxel::SIZE;
-		rayData2.offset = { 0.0f, 0.0f, 0.0f };// glm::vec3{ Voxel::SIZE / 2.0f };
+		rayData2.offset = { 0.0f, 0.0f, 0.0f };
 		VoxelRay::PosFromRay(rayData2, voxelList2);
+
 		for (auto i = voxelList2.begin(); i != voxelList2.end(); ++i) {
 			glm::ivec3 voxelPos2 = *i;
 			glm::ivec3 chunkPos = glm::floor((glm::vec3)voxelPos2 / (float)Chunk::SIZE);
@@ -83,10 +84,10 @@ namespace Lynx {
 
 	void World::Load(const std::string& file)
 	{
-		LX_PROFILE_FUNCTION();
-		Lynx::XRAW xraw = Lynx::Importer::XRawImport(file);
-		Lynx::Importer::XRAWToVoxel(xraw, *this);
-		MakeMesh();
+		//LX_PROFILE_FUNCTION();
+		//Lynx::XRAW xraw = Lynx::Importer::XRawImport(file);
+		//Lynx::Importer::XRAWToVoxel(xraw, *this);
+		//MakeMesh();
 	}
 
 	void World::MakeMesh()

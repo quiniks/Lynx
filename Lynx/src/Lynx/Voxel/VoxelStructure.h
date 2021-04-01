@@ -1,4 +1,5 @@
 #pragma once
+#include "Lynx/Render/FreeCamera.h"
 #include "Lynx/Utility/BitMask.h"
 #include "Lynx/Detail/glm.h"
 
@@ -38,24 +39,32 @@ namespace Lynx {
 		uint32_t m_Color = 0;
 	};
 
-	struct VertexData {
-		glm::vec3 Pos;
-		uint32_t Color;
-		uint8_t SideAndAO;
-	};
-
 	///////////////////////
 
 	class Chunk {
 	public:
 		Chunk(const glm::uvec3& chunkPos) {
 			m_ChunkPosition = chunkPos;
-			m_ChunkModelPos = (glm::vec3)chunkPos * (float)Chunk::SIZE * Voxel::SIZE;
 		}
+		static unsigned int VoxelIndexFromPos(const glm::uvec3& pos);
+
 		static const unsigned int SIZE = 16;
 		glm::uvec3 m_ChunkPosition{ 0 };
-		glm::vec3 m_ChunkModelPos{ 0.0f };
-		Ref<Chunk> m_AdjChunks[6] = { nullptr };
-		std::vector<Voxel> m_Voxels[SIZE * SIZE * SIZE];
+		std::vector<Voxel> m_Voxels;
+	};
+
+	///////////////////////
+
+	class World {
+	public:
+		void LoadXRAW(const std::string& file);
+		bool LookingAtVoxel(const FreeCamera& camera, glm::uvec3& vpos);
+		void SetVoxel(const glm::uvec3 vpos, Voxel::Type type, const glm::vec4& color);
+		bool ValidChunkPos(const glm::uvec3& pos);
+		unsigned int ChunkIndexFromPos(const glm::uvec3& pos);
+
+		glm::uvec3 m_Size{0};
+		std::vector<Chunk> m_Chunks;
+		std::vector<glm::uvec3> m_DirtyChunkPositions;
 	};
 }
