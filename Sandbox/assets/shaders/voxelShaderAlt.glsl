@@ -24,17 +24,17 @@ void main()
 	else if (AO == 5)
 		v_AO = vec3(0.5, 0.5, 0.5);
 
-	if (Side == 0)
+	if (Side == 1)
 		v_Normal = vec3(1.0, 0.0, 0.0);
-	else if (Side == 1)
+	else if (Side == 0)
 		v_Normal = vec3(-1.0, 0.0, 0.0);
-	else if (Side == 2)
-		v_Normal = vec3(0.0, 1.0, 0.0);
 	else if (Side == 3)
+		v_Normal = vec3(0.0, 1.0, 0.0);
+	else if (Side == 2)
 		v_Normal = vec3(0.0, -1.0, 0.0);
-	else if (Side == 4)
-		v_Normal = vec3(0.0, 0.0, 1.0);
 	else if (Side == 5)
+		v_Normal = vec3(0.0, 0.0, 1.0);
+	else if (Side == 4)
 		v_Normal = vec3(0.0, 0.0, -1.0);
 
 	v_Color = a_Color;

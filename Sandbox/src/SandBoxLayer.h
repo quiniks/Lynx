@@ -1,6 +1,7 @@
 #pragma once
 #include <Lynx.h>
-#include <Lynx/Voxel/World.h>
+//#include <Lynx/Voxel/World.h>
+#include <Lynx/Voxel/VoxelStructure.h>
 #include "Lynx/Render/Grid.h"
 
 class SandBoxLayer : public Lynx::Layer {
@@ -16,8 +17,9 @@ public:
 private:
 	Lynx::Shader m_VoxelShader;
 	Lynx::Shader m_ColorShader;
-	Lynx::World m_World;
+	//Lynx::World m_World;
 	Lynx::Grid m_Grid;
+	Lynx::World m_World;
 
 	glm::mat4 m_Transform = glm::mat4(1.0f);
 

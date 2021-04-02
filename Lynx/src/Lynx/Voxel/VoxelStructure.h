@@ -31,7 +31,7 @@ namespace Lynx {
 		void SetType(Voxel::Type type) {
 			m_Type = type;
 		}
-		Voxel::Type GetType() {
+		Voxel::Type GetType() const {
 			return m_Type;
 		}
 	private:
@@ -46,11 +46,17 @@ namespace Lynx {
 		Chunk(const glm::uvec3& chunkPos) {
 			m_ChunkPosition = chunkPos;
 		}
+		Voxel::Type GetVoxelTypeAt(const glm::uvec3& vLocalPos) const;
 		static unsigned int VoxelIndexFromPos(const glm::uvec3& pos);
 
 		static const unsigned int SIZE = 16;
 		glm::uvec3 m_ChunkPosition{ 0 };
 		std::vector<Voxel> m_Voxels;
+
+		enum class Direction {
+			PX, NX, PY, NY, PZ, NZ, Total
+		};
+		Ref<Chunk> m_AdjChunks[6] = { nullptr };
 	};
 
 	///////////////////////
@@ -62,9 +68,10 @@ namespace Lynx {
 		void SetVoxel(const glm::uvec3 vpos, Voxel::Type type, const glm::vec4& color);
 		bool ValidChunkPos(const glm::uvec3& pos);
 		unsigned int ChunkIndexFromPos(const glm::uvec3& pos);
+		void connectChunks();
 
 		glm::uvec3 m_Size{0};
-		std::vector<Chunk> m_Chunks;
+		std::vector<Ref<Chunk>> m_Chunks;
 		std::vector<glm::uvec3> m_DirtyChunkPositions;
 	};
 }

@@ -74,6 +74,7 @@ namespace Lynx {
 			world.m_Chunks.reserve(totalChunks);
 			auto initChunks = [&](const glm::uvec3& chunkPos) {
 				world.m_Chunks.emplace_back(Chunk{ chunkPos });
+				world.m_Chunks.back()->m_Voxels.resize(Chunk::SIZE * Chunk::SIZE * Chunk::SIZE);
 			};
 			//xraw height/y axis is the z axis
 			LoopXYZ(initChunks, { XtotalChunks, YtotalChunks, ZtotalChunks });
@@ -93,7 +94,7 @@ namespace Lynx {
 
 			//unsigned int index = IndexLinear(chunkPos.z, chunkPos.y, chunkPos.x, world.m_Size.x, world.m_Size.y);
 			unsigned int index = world.ChunkIndexFromPos(chunkPos);
-			Chunk& chunk = world.m_Chunks.at(index);
+			Chunk& chunk = *world.m_Chunks.at(index);
 			Voxel& voxel = chunk.m_Voxels.at(Chunk::VoxelIndexFromPos(voxelLocalPos));
 
 			//Set voxel type

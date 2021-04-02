@@ -21,8 +21,8 @@ SandBoxLayer::SandBoxLayer()
 	m_ColorShader.SetFloat4("u_Tint", { 0.5f, 0.5f, 0.5f, 1.0f });
 	m_ColorShader.SetMat4("u_MVP", m_FreeCamera.GetViewProjection());
 
-	m_World.Init();
-	m_World.Load("assets/test/base.xraw");
+	//m_World.Init();
+	m_World.LoadXRAW("assets/test/base.xraw");
 	m_Grid.Init(0.2f, 5, { 0.0f, 0.0f, 0.0f });
 
 	//Lynx::App::Get().GetWindow().SetVSync(false);
@@ -54,7 +54,7 @@ void SandBoxLayer::OnUpdate(Lynx::TimeStep timeStep)
 	m_VoxelShader.Bind();
 	m_VoxelShader.SetMat4("u_MVP", vp);
 	m_VoxelShader.SetFloat3("u_CameraPosition", m_FreeCamera.GetPosition());
-	m_World.Render();
+	//m_World.Render();
 	
 
 	m_ColorShader.Bind();
@@ -93,10 +93,12 @@ bool SandBoxLayer::OnMousePressedButton(Lynx::MouseButtonPressedEvent& event)
 {
 	
 	if (event.GetMouseButton() == Lynx::Mouse::ButtonLeft) {
+		/*
 		glm::ivec3 voxelPos;
 		if (m_World.VoxelPick(m_FreeCamera, voxelPos)) {
 			m_World.VoxelSet(voxelPos, Lynx::Voxel::Type::Empty);
 		}
+		*/
 	}
 	return true;
 }
