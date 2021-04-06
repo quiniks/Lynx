@@ -46,7 +46,7 @@ namespace Lynx {
 		Chunk(const glm::uvec3& chunkPos) {
 			m_ChunkPosition = chunkPos;
 		}
-		Voxel::Type GetVoxelTypeAt(const glm::uvec3& vLocalPos) const;
+		Voxel::Type GetVoxelTypeAt(const glm::ivec3& vLocalPos) const;
 		static unsigned int VoxelIndexFromPos(const glm::uvec3& pos);
 
 		static const unsigned int SIZE = 16;

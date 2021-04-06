@@ -17,7 +17,7 @@ namespace Lynx {
 		void Render();
 		void ReMesh(const Chunk& chunk);
 	private:
-		int CalcAO(const Chunk& chunk, const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2);
+		unsigned int CalcAO(const Chunk& chunk, const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2);
 		void AddFace(const glm::uvec3* vertices, const unsigned int* ao, const glm::uvec3& p, Chunk::Direction dir, uint32_t color);
 	private:
 		glm::vec3 m_Position{ 0.0f };

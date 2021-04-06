@@ -73,7 +73,7 @@ namespace Lynx {
 			world.m_Chunks.clear();
 			world.m_Chunks.reserve(totalChunks);
 			auto initChunks = [&](const glm::uvec3& chunkPos) {
-				world.m_Chunks.emplace_back(Chunk{ chunkPos });
+				world.m_Chunks.emplace_back(CreateRef<Chunk>(Chunk{ chunkPos }));
 				world.m_Chunks.back()->m_Voxels.resize(Chunk::SIZE * Chunk::SIZE * Chunk::SIZE);
 			};
 			//xraw height/y axis is the z axis
@@ -108,14 +108,14 @@ namespace Lynx {
 			//Set voxel color
 			glm::vec4 color{ 0.0f };
 			if (header.num_color_channels == 4) {
-				float depth = pow(2, header.bits_per_channel);
+				float depth = powf(2, header.bits_per_channel);
 				color.r = data.palette.at(4 * paletteIndex + 0) / (depth - 1);
 				color.g = data.palette.at(4 * paletteIndex + 1) / (depth - 1);
 				color.b = data.palette.at(4 * paletteIndex + 2) / (depth - 1);
 				color.a = data.palette.at(4 * paletteIndex + 3) / (depth - 1);
 			}
 			else if (header.num_color_channels == 3) {
-				float depth = pow(2, header.bits_per_channel);
+				float depth = powf(2, header.bits_per_channel);
 				color.r = data.palette.at(3 * paletteIndex + 0) / (depth - 1);
 				color.g = data.palette.at(3 * paletteIndex + 1) / (depth - 1);
 				color.b = data.palette.at(3 * paletteIndex + 2) / (depth - 1);

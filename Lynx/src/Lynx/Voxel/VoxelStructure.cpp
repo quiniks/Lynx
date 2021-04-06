@@ -7,43 +7,43 @@
 #include <glad/glad.h>
 
 namespace Lynx {
-	Voxel::Type Chunk::GetVoxelTypeAt(const glm::uvec3& vLocalPos) const
+	Voxel::Type Chunk::GetVoxelTypeAt(const glm::ivec3& vLocalPos) const
 	{
 		if (vLocalPos.x < 0) {
-			if (m_AdjChunks[Chunk::Direction::NX] != nullptr)
-				return m_AdjChunks[Chunk::Direction::NX]->m_Voxels.at(VoxelIndexFromPos({ Chunk::SIZE - 1, vLocalPos.y, vLocalPos.z })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::NX] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::NX]->m_Voxels.at(VoxelIndexFromPos({ Chunk::SIZE - 1, vLocalPos.y, vLocalPos.z })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
 		else if (vLocalPos.x > Chunk::SIZE - 1) {
-			if (m_AdjChunks[Chunk::Direction::PX] != nullptr)
-				return m_AdjChunks[Chunk::Direction::PX]->m_Voxels.at(VoxelIndexFromPos({ 0, vLocalPos.y, vLocalPos.z })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::PX] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::PX]->m_Voxels.at(VoxelIndexFromPos({ 0, vLocalPos.y, vLocalPos.z })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
 
 		if (vLocalPos.y < 0) {
-			if (m_AdjChunks[Chunk::Direction::NY] != nullptr)
-				return m_AdjChunks[Chunk::Direction::NY]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, Chunk::SIZE - 1, vLocalPos.z })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::NY] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::NY]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, Chunk::SIZE - 1, vLocalPos.z })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
 		else if (vLocalPos.y > Chunk::SIZE - 1) {
-			if (m_AdjChunks[Chunk::Direction::PY] != nullptr)
-				return m_AdjChunks[Chunk::Direction::PY]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, 0, vLocalPos.z })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::PY] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::PY]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, 0, vLocalPos.z })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
 
 		if (vLocalPos.z < 0) {
-			if (m_AdjChunks[Chunk::Direction::NZ] != nullptr)
-				return m_AdjChunks[Chunk::Direction::NZ]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, vLocalPos.y, Chunk::SIZE - 1 })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::NZ] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::NZ]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, vLocalPos.y, Chunk::SIZE - 1 })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
 		else if (vLocalPos.z > Chunk::SIZE - 1) {
-			if (m_AdjChunks[Chunk::Direction::PZ] != nullptr)
-				return m_AdjChunks[Chunk::Direction::PZ]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, vLocalPos.y, 0 })).GetType();
+			if (m_AdjChunks[(unsigned)Chunk::Direction::PZ] != nullptr)
+				return m_AdjChunks[(unsigned)Chunk::Direction::PZ]->m_Voxels.at(VoxelIndexFromPos({ vLocalPos.x, vLocalPos.y, 0 })).GetType();
 			else
 				return Voxel::Type::Empty;
 		}
@@ -174,12 +174,12 @@ namespace Lynx {
 				}
 			};
 
-			connect(cPos + glm::uvec3{  0,  1,	0 }, Chunk::Direction::PY);
-			connect(cPos + glm::uvec3{  0,  0,	1 }, Chunk::Direction::PZ);
-			connect(cPos + glm::uvec3{  1,  0,	0 }, Chunk::Direction::PX);
-			connect(cPos + glm::uvec3{  0,  0, -1 }, Chunk::Direction::NZ);
-			connect(cPos + glm::uvec3{ -1,  0,	0 }, Chunk::Direction::NX);
-			connect(cPos + glm::uvec3{  0, -1,	0 }, Chunk::Direction::NY);
+			connect(cPos + glm::uvec3{  0,  1,	0 }, (unsigned)Chunk::Direction::PY);
+			connect(cPos + glm::uvec3{  0,  0,	1 }, (unsigned)Chunk::Direction::PZ);
+			connect(cPos + glm::uvec3{  1,  0,	0 }, (unsigned)Chunk::Direction::PX);
+			connect(cPos + glm::uvec3{  0,  0, -1 }, (unsigned)Chunk::Direction::NZ);
+			connect(cPos + glm::uvec3{ -1,  0,	0 }, (unsigned)Chunk::Direction::NX);
+			connect(cPos + glm::uvec3{  0, -1,	0 }, (unsigned)Chunk::Direction::NY);
 		};
 		LoopXYZ(connectChunks, m_Size);
 	}

@@ -1,7 +1,7 @@
 #include "Lynxpch.h"
 #include "VoxelRenderer.h"
-#include "Lynx/Utility/Util.h"
 #include "Lynx/Utility/Packing.h"
+#include "Lynx/Utility/Util.h"
 #include <glad/glad.h>
 
 namespace Lynx {
@@ -35,7 +35,7 @@ namespace Lynx {
 			Voxel voxel = chunk.m_Voxels.at(vIndex);
 
 			if (voxel.GetType() != Voxel::Type::Empty) {
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{-1, 0, 0}) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{-1, 0, 0}) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { { 0, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }, { 0, 1, 1 } };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x - 1, ivPos.y, ivPos.z }, { 0, -1, 0 }, { 0, 0, -1 }),
@@ -46,7 +46,7 @@ namespace Lynx {
 					AddFace(vert, ao, vPos, Chunk::Direction::NX, voxel.GetColor());
 				}
 
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{ 1, 0, 0 }) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{ 1, 0, 0 }) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { { 1, 1, 1 }, { 1, 1, 0 }, { 1, 0, 1 }, { 1, 0, 0 } };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x + 1, ivPos.y, ivPos.z }, { 0,  1, 0 }, { 0, 0,  1 }),
@@ -57,7 +57,7 @@ namespace Lynx {
 					AddFace(vert, ao, vPos, Chunk::Direction::PX, voxel.GetColor());
 				}
 
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{ 0, -1, 0 }) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{ 0, -1, 0 }) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { {1, 0, 1},{1, 0, 0},{0, 0, 1},{0, 0, 0} };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x, ivPos.y - 1, ivPos.z }, {  1, 0, 0 }, { 0, 0,  1 }),
@@ -68,7 +68,7 @@ namespace Lynx {
 					AddFace(vert, ao, vPos, Chunk::Direction::NY, voxel.GetColor());
 				}
 
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{ 0, 1, 0 }) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{ 0, 1, 0 }) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { {0, 1, 0},{1, 1, 0},{0, 1, 1},{1, 1, 1} };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x, ivPos.y + 1, ivPos.z }, { -1, 0, 0 }, { 0, 0, -1 }),
@@ -79,7 +79,7 @@ namespace Lynx {
 					AddFace(vert, ao, vPos, Chunk::Direction::PY, voxel.GetColor());
 				}
 
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{ 0, 0, -1 }) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{ 0, 0, -1 }) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { {0, 0, 0},{1, 0, 0},{0, 1, 0},{1, 1, 0} };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x, ivPos.y, ivPos.z - 1 }, { -1, 0, 0 }, { 0, -1, 0 }),
@@ -90,7 +90,7 @@ namespace Lynx {
 					AddFace(vert, ao, vPos, Chunk::Direction::NZ, voxel.GetColor());
 				}
 
-				if (chunk.GetVoxelTypeAt(vPos + glm::uvec3{ 0, 0, 1 }) != Voxel::Type::Empty) {
+				if (chunk.GetVoxelTypeAt(ivPos + glm::ivec3{ 0, 0, 1 }) == Voxel::Type::Empty) {
 					glm::uvec3 vert[4] = { {1, 1, 1},{1, 0, 1},{0, 1, 1},{0, 0, 1} };
 					unsigned int ao[4] = {
 						CalcAO(chunk, { ivPos.x, ivPos.y, ivPos.z + 1 }, {  1, 0, 0 }, { 0,  1, 0 }),
@@ -104,10 +104,10 @@ namespace Lynx {
 		};
 		LoopXYZ(createMesh, { Chunk::SIZE, Chunk::SIZE, Chunk::SIZE });
 
-		m_VB->SetData(m_ChunkVertexData.data(), m_ChunkVertexData.size() * sizeof(m_ChunkVertexData));
+		m_VB->SetData(m_ChunkVertexData.data(), m_ChunkVertexData.size() * sizeof(ChunkVertex));
 	}
 
-	int ChunkMesh::CalcAO(const Chunk& chunk, const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2)
+	unsigned int ChunkMesh::CalcAO(const Chunk& chunk, const glm::ivec3& p, const glm::ivec3& d1, const glm::ivec3& d2)
 	{
 		bool adjA2 = false, adjB2 = false, adjC2 = false;
 		glm::ivec3 a = p + d1;
@@ -151,10 +151,15 @@ namespace Lynx {
 		}
 	}
 
-	//TODO
 	void VoxelRenderer::Init(World& world)
 	{
-
+		unsigned int chunkCount = world.m_Chunks.size();
+		m_Meshes.reserve(chunkCount);
+		for (auto chunk : world.m_Chunks) {
+			ChunkMesh mesh{ chunk->m_ChunkPosition };
+			m_Meshes.emplace_back(mesh);
+			world.m_DirtyChunkPositions.push_back(chunk->m_ChunkPosition);
+		}
 	}
 
 	void VoxelRenderer::Render(World& world)
@@ -166,6 +171,13 @@ namespace Lynx {
 
 	void VoxelRenderer::Update(World& world)
 	{
-
+		for (auto pos : world.m_DirtyChunkPositions) {
+			unsigned int index = world.ChunkIndexFromPos(pos);
+			if (index < m_Meshes.size() && world.ValidChunkPos(pos)) {
+				ChunkMesh& mesh = m_Meshes.at(index);
+				mesh.ReMesh(*world.m_Chunks.at(index));
+			}
+		}
+		world.m_DirtyChunkPositions.clear();
 	}
 }
