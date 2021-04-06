@@ -48,8 +48,10 @@ namespace Lynx {
 		}
 		Voxel::Type GetVoxelTypeAt(const glm::ivec3& vLocalPos) const;
 		static unsigned int VoxelIndexFromPos(const glm::uvec3& pos);
+		static bool ValidVoxelPos(const glm::uvec3& pos);
 
 		static const unsigned int SIZE = 16;
+		static const unsigned int SIZE_BORDERED = 17;
 		glm::uvec3 m_ChunkPosition{ 0 };
 		std::vector<Voxel> m_Voxels;
 

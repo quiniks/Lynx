@@ -9,6 +9,7 @@
 namespace Lynx {
 	Voxel::Type Chunk::GetVoxelTypeAt(const glm::ivec3& vLocalPos) const
 	{
+		/*
 		if (vLocalPos.x < 0) {
 			if (m_AdjChunks[(unsigned)Chunk::Direction::NX] != nullptr)
 				return m_AdjChunks[(unsigned)Chunk::Direction::NX]->m_Voxels.at(VoxelIndexFromPos({ Chunk::SIZE - 1, vLocalPos.y, vLocalPos.z })).GetType();
@@ -47,8 +48,11 @@ namespace Lynx {
 			else
 				return Voxel::Type::Empty;
 		}
+		*/
 
-		return m_Voxels.at(Chunk::VoxelIndexFromPos(vLocalPos)).GetType();
+		if (ValidVoxelPos(vLocalPos))
+			return m_Voxels.at(Chunk::VoxelIndexFromPos(vLocalPos)).GetType();
+		return Voxel::Type::Empty;
 	}
 
 	unsigned int Chunk::VoxelIndexFromPos(const glm::uvec3& pos)
@@ -58,10 +62,20 @@ namespace Lynx {
 		return a * pos.x + b * pos.y + pos.z;
 	}
 
+	bool Chunk::ValidVoxelPos(const glm::uvec3& pos)
+	{
+		bool upper = pos.x >= Chunk::SIZE || pos.y >= Chunk::SIZE || pos.z >= Chunk::SIZE;
+		bool lower = pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f;
+		if (upper || lower)
+			return false;
+		return true;
+	}
+
 	void World::LoadXRAW(const std::string& file)
 	{
 		Lynx::XRAW xraw = Lynx::Importer::XRawImport(file);
 		Lynx::Importer::XRAWToVoxel(xraw, *this);
+		connectChunks();
 	}
 
 	bool World::LookingAtVoxel(const FreeCamera& camera, glm::uvec3& vpos)
